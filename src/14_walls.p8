@@ -114,13 +114,13 @@ end
 wallfront=kind({
  extends=entity
 })
+
  function wallfront:render()
   dim_object(self)
   map(self.mx,self.my,
       self.pos.x,self.pos.y-16,
       self.mw,2)      
  end
- 
  
 function find_wall_fronts()
  for y=0,14 do
@@ -220,6 +220,7 @@ fpats={
  {0,0,32,0,1,0, 187},
  {0,0,32,0,2,0, 171},
 }
+
 cpats={
  --fronts
  ---right
@@ -247,6 +248,7 @@ cpats={
  {0,0,32,-1,0,16, 150},
  {0,0,0, 0,1,32, 165} 
 }
+
 function g_cmatch(x,y,m)
  x,y=mid(x,0,15),mid(y,0,15)
  local v=band(fget(mget(x,y)),0x30)
@@ -278,6 +280,7 @@ reps={
  r187={187,187,188},
  r171={171,171,172}
 }
+
 function g_randomize(reps)
  for x=0,15 do
   for y=0,15 do

@@ -4,7 +4,7 @@
 player_speed=1
 
 player_sprites={
-	5,37,5,37
+	2,4,6,8
 }
 
 player=kind({

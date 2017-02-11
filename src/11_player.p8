@@ -4,7 +4,7 @@
 player_speed=1
 
 player_sprites={
-	2,2,4,6
+	2,2,32,8
 }
 
 player=kind({
@@ -51,8 +51,6 @@ function player:hit_object(ob)
 end
 
 function player:render()
-	printh(self.frm)
-
 	local pos=self.pos
 	local sprite=player_sprites[self.facing]+self.frm*2
 

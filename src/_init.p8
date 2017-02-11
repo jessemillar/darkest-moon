@@ -6,7 +6,7 @@ function _init()
 	process_walls()
 
 	ply=player:new({
-		pos=v(64,120),facing=3
+		pos=v(22,42),facing=4
 	})
 
 	lgt=light:new({

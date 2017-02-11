@@ -3,138 +3,6 @@ version 8
 __lua__
 
 ------------------------------
--- class system
-------------------------------
-
--- creates a "class" object
--- with support for basic
--- inheritance/initialization
-function kind(kob)
- kob=kob or {}
- setmetatable(kob,{__index=kob.extends})
- 
- kob.new=function(self,ob)
-  ob=set(ob,{kind=kob})
-  setmetatable(ob,{__index=kob})
-  if (kob.create) ob:create()
-  return ob
- end
- 
- return kob 
-end
-
-------------------------------
--- entity system
-------------------------------
-
--- entity root type
-entity=kind({
- t=0,state="s_default"
-})
-
--- a big bag of all entities
-entities={}
-
--- entities with some special
--- props are tracked separately
-entities_with={}
-tracked_props={
- "render","cbox",
- "walls","shadow"
-}
-
--- used to add/remove objects
--- in the entities_with list
-function update_with_table(e,fn)
- for prop in all(tracked_props) do
-  if e[prop] then
-   local lst=
-    entities_with[prop] or {}
-   fn(lst,e)
-   entities_with[prop]=lst
-  end
- end
-end
-
--- all entities do common
--- stuff when created -
--- mostly register in lists
-e_id=1
-function entity:create()
- if not self.name then
-  self.name=e_id..""
-  e_id+=1
- end
- local name=self.name
- entities[name]=self
- 
- update_with_table(self,add) 
-end
-
--- this is the core of our
--- _update() method - update
--- each entity in turn
-function update_entities()
- for n,e in pairs(entities) do
-  local update_fn=e[e.state]  
-  local result = update_fn
-   and update_fn(e,e.t)
-   or nil
-  
-  if result then
-   if result==true then
-    -- remove entity
-    entities[n]=nil
-    update_with_table(e,del)
-   else
-    -- set state
-    set(e,{
-     state=result,t=0
-    })    
-   end
-  else
-   -- bump timer in this state
-   e.t+=1
-  end
- end
-end
-
-------------------------------
--- entity rendering
-------------------------------
-
--- renders entities, sorted by
--- y to get proper occlusion
-function render_entities()
- ysorted={}
- 
- for d in all(entities_with.render) do
-  local y=d.pos and flr(d.pos.y) or 139
-  ysorted[y]=ysorted[y] or {}
-  add(ysorted[y],d)
- end
- for y=clipbox.yt,clipbox.yb do
-  for d in all(ysorted[y]) do
-   reset_palette()
-   d:render(d.t)
-  end
-  reset_palette()
- end
-end
-
-function render_blob_shadows()
- local sh_fill=fl_blend(5)
- for e in all(entities_with.shadow) do
-  local sh=e.shadow
-  local p=e.pos+e.shadow
-  if clipbox:contains(p) then
-   cellipse(p.x,p.y,
-    sh.rx,sh.ry,sh_fill)
-  end
- end
-end
-
-------------------------------
 -- utilities
 ------------------------------
 
@@ -178,6 +46,27 @@ function min_of(seq,key)
   end
  end
  return me
+end
+
+------------------------------
+-- class system
+------------------------------
+
+-- creates a "class" object
+-- with support for basic
+-- inheritance/initialization
+function kind(kob)
+ kob=kob or {}
+ setmetatable(kob,{__index=kob.extends})
+ 
+ kob.new=function(self,ob)
+  ob=set(ob,{kind=kob})
+  setmetatable(ob,{__index=kob})
+  if (kob.create) ob:create()
+  return ob
+ end
+ 
+ return kob 
 end
 
 -------------------------------
@@ -313,6 +202,386 @@ function vec_box(v1,v2)
   v1.x,v1.y,
   v2.x,v2.y
  )
+end
+
+------------------------------
+-- entity system
+------------------------------
+
+-- entity root type
+entity=kind({
+ t=0,state="s_default"
+})
+
+-- a big bag of all entities
+entities={}
+
+-- entities with some special
+-- props are tracked separately
+entities_with={}
+tracked_props={
+ "render","cbox",
+ "walls","shadow"
+}
+
+-- used to add/remove objects
+-- in the entities_with list
+function update_with_table(e,fn)
+ for prop in all(tracked_props) do
+  if e[prop] then
+   local lst=
+    entities_with[prop] or {}
+   fn(lst,e)
+   entities_with[prop]=lst
+  end
+ end
+end
+
+-- all entities do common
+-- stuff when created -
+-- mostly register in lists
+e_id=1
+function entity:create()
+ if not self.name then
+  self.name=e_id..""
+  e_id+=1
+ end
+ local name=self.name
+ entities[name]=self
+ 
+ update_with_table(self,add) 
+end
+
+-- this is the core of our
+-- _update() method - update
+-- each entity in turn
+function update_entities()
+ for n,e in pairs(entities) do
+  local update_fn=e[e.state]  
+  local result = update_fn
+   and update_fn(e,e.t)
+   or nil
+  
+  if result then
+   if result==true then
+    -- remove entity
+    entities[n]=nil
+    update_with_table(e,del)
+   else
+    -- set state
+    set(e,{
+     state=result,t=0
+    })    
+   end
+  else
+   -- bump timer in this state
+   e.t+=1
+  end
+ end
+end
+
+------------------------------
+-- entity rendering
+------------------------------
+
+-- renders entities, sorted by
+-- y to get proper occlusion
+function render_entities()
+ ysorted={}
+ 
+ for d in all(entities_with.render) do
+  local y=d.pos and flr(d.pos.y) or 139
+  ysorted[y]=ysorted[y] or {}
+  add(ysorted[y],d)
+ end
+ for y=clipbox.yt,clipbox.yb do
+  for d in all(ysorted[y]) do
+   reset_palette()
+   d:render(d.t)
+  end
+  reset_palette()
+ end
+end
+
+function render_blob_shadows()
+ local sh_fill=fl_blend(5)
+ for e in all(entities_with.shadow) do
+  local sh=e.shadow
+  local p=e.pos+e.shadow
+  if clipbox:contains(p) then
+   cellipse(p.x,p.y,
+    sh.rx,sh.ry,sh_fill)
+  end
+ end
+end
+
+-------------------------------
+-- collisions
+-------------------------------
+
+function c_box(e)
+ local b,p=e.cbox,e.pos
+ return p 
+  and b:translate(p:ints()) 
+  or b
+end
+
+cqueue={}
+function collide(ent,prop,cb)
+ add(cqueue,{e=ent,p=prop,cb=cb}) 
+end
+
+function do_collisions()
+ for c in all(cqueue) do
+  local e=c.e
+  local eb=c_box(e)
+  for o in all(entities_with[c.p]) do
+   if o~=e then
+    local ob=c_box(o)
+    if eb:overlaps(ob) then
+     local separate=c.cb(e,o)
+     if separate then
+      local sepv=eb:sepv(ob)
+      e.pos+=sepv
+      eb=eb:translate(sepv)
+     end
+    end
+   end
+  end
+ end
+ cqueue={}
+end
+
+function debug_collisions()
+ for e in all(entities_with.cbox) do
+  local eb=c_box(e)
+  rect(eb.xl,eb.yt,eb.xr,eb.yb,4)
+ end
+end
+
+------------------------------
+-- drawing shapes
+------------------------------
+
+--  all shapes accept a fill
+-- function which is responsible
+-- for actual drawing
+--  the functions just do
+-- calculations and clipping
+
+-- draws a polygon from an
+-- array of points, using
+-- ln() to fill it
+-- points must be clockwise
+function ngon(pts,ln)
+ local xls,xrs=ngon_setup(pts)
+ for y,xl in pairs(xls) do
+  local xr=xrs[y]
+  ln(xl,xr,y)
+ end
+end
+
+-- like ngon, but with a
+-- rectangular hole (used
+-- to mask shadows)
+dummy_hole={tl={y=16000},br={}}
+function holed_ngon(pts,hole,ln)
+ local xls,xrs=ngon_setup(pts)
+ hole=hole or dummy_hole
+ local htop,hbot,hl,hr=
+  hole.tl.y,hole.br.y,
+  hole.tl.x,hole.br.x
+ for y,xl in pairs(xls) do
+  local xr=xrs[y]
+  if y<htop or y>hbot then
+   ln(xl,xr,y)
+  else
+   local cl,cr=
+    min(hl,xr),max(hr,xl)
+   if xl<=cl then
+    ln(xl,cl,y)
+   end
+   if cr<=xr then
+    ln(cr,xr,y)
+   end
+  end
+ end
+end
+
+-- sets up min/max x of
+-- each polygon line
+function ngon_setup(pts)
+ local xls,xrs={},{} 
+ local npts=#pts
+ for i=0,npts-1 do
+  ngon_edge(
+   pts[i+1],pts[(i+1)%npts+1],
+   xls,xrs
+  )
+ end
+ return xls,xrs
+end
+
+function ngon_edge(a,b,xls,xrs)
+ local ax,ay=a.x,round(a.y)
+ local bx,by=b.x,round(b.y)
+ if (ay==by) return
+
+ local x,dx=
+  ax,(bx-ax)/abs(by-ay)
+ if ay<by then
+  for y=ay,by do
+   xrs[y]=x
+   x+=dx
+  end
+ else
+  for y=ay,by,-1 do
+   xls[y]=x
+   x+=dx
+  end
+ end
+end
+
+-- draws a filled rectangle
+-- with a custom fill fn
+function crect(x1,y1,x2,y2,ln)
+ x1,x2=max(x1,0),mid(x2,127)
+ y1,y2=max(y1,0),min(y2,127)
+ if (x2<x1 or y2<y1) return
+ for y=y1,y2 do
+  ln(x1,x2,y)
+ end
+end
+
+-- draws a filled ellipse
+-- with a custom fill fn
+function cellipse(cx,cy,rx,ry,ln)
+ cy,ry=round(cy),round(ry)
+ local w=0
+ local ryx,rxy=ry/rx,rx/ry
+ local dy=(-2*ry+1)*rxy
+ local dx=ryx
+ local ddx=2*ryx
+ local ddy=2*rxy
+ local lim=rx*ry
+ local v=ry*ry*rxy
+ local my=cy+ry-1
+ for y=cy-ry,cy-1 do
+  -- creep w up until we hit lim
+  while true do
+   if v+dx<=lim then
+    v+=dx
+    dx+=ddx
+    w+=1
+   else
+    break
+   end
+  end
+  -- draw line
+  if w>0 then
+   local l,r=
+    mid(cx-w,0,127),
+    mid(cx+w-1,0,127)
+   if (y>=0 and y<128) ln(l,r,y)
+   if (my>=0 and my<128) ln(l,r,my)
+  end
+  -- go down
+  v+=dy
+  dy+=ddy
+  my-=1
+ end
+end
+
+-------------------------------
+-- basic fills
+-------------------------------
+
+-- a fill function is just
+-- a function(x1,x2,y) that
+-- draws a horizontal line
+
+-- returns a fill function
+-- that draws a solid color
+function fl_color(c)
+ return function(x1,x2,y)
+  rectfill(x1,y,x2,y,c)
+ end
+end
+
+-- used as fill function
+-- for ignored areas
+function fl_none()
+end
+
+-------------------------------
+-- fast blend fill
+-------------------------------
+
+-- sets up everything
+-- blend_line will need
+function init_blending(nlevels)
+ -- tabulate sqrt() for speed
+ _sqrt={}
+ for i=0,4096 do
+  _sqrt[i]=sqrt(i)
+ end
+
+ -- populate look-up tables
+ -- for blending based on
+ -- palettes in sprite mem
+ for lv=1,nlevels do
+  -- light luts are stored in
+  -- memory directly, table
+  -- indexing is costly
+  local addr=0x4300+lv*0x100
+  local sx=lv-1
+  for c1=0,15 do
+   local nc=sget(sx,c1)
+   local topl=shl(nc,4)
+   for c2=0,15 do
+    poke(addr,
+     topl+sget(sx,c2))
+    addr+=1
+   end
+  end
+ end 
+end
+
+function fl_blend(l)
+ local lutaddr=0x4300+shl(l,8)
+	return function(x1,x2,y)
+	 local laddr=lutaddr
+	 local yaddr=0x6000+shl(y,6)
+	 local saddr,eaddr=
+	  yaddr+band(shr(x1+1,1),0xffff),
+	  yaddr+band(shr(x2-1,1),0xffff)
+	 -- odd pixel on left?
+	 if band(x1,1.99995)>=1 then
+	  local a=saddr-1
+	  local v=peek(a)
+	  poke(a,
+	   band(v,0xf) +
+	   band(peek(bor(laddr,v)),0xf0)
+	  )
+	 end
+	 -- full bytes
+	 for addr=saddr,eaddr do
+	  poke(addr,
+	   peek(
+	    bor(laddr,peek(addr))
+	   )
+	  )
+	 end
+	 -- odd pixel on right?
+	 if band(x2,1.99995)<1 then
+	  local a=eaddr+1
+	  local v=peek(a)
+	  poke(a,
+	   band(peek(bor(laddr,v)),0xf) +
+	   band(v,0xf0)
+	  )
+	 end
+	end
 end
 
 -------------------------------
@@ -669,7 +938,7 @@ light_offsets={
   crect(xl,yt,xr,yb,
    light_fill)
  end
- 
+
 -------------------------------
 -- ghostly watcher
 -------------------------------
@@ -829,124 +1098,6 @@ function find_wall_fronts()
  end
 end
 
-function _draw()
-	cls() -- clear the screen
-	palt()
-	palt(0,false)
-
-	-- clip to lit rectangle
-	local xl,yt,xr,yb=lgt:extents()
-	clip(xl,yt,xr-xl+1,yb-yt+1) 
-	-- store clipping coords
-	-- globally to let us
-	-- not draw certain objects
-	clipbox=make_box(
-		xl-8,yt,xr+8,yb+24
-	)
-	-- background from level map
-	map(0,0,0,0,16,16) 
-	-- under-entity "blob" shadows
-	render_blob_shadows() 
-	-- entities themselves
-	render_entities()
-	-- "foreground" layer of level
-	-- (parts that need to be
-	--  on top of entities)
-	map(0,0,0,0,16,16,128) 
-	-- apply lighting to all that
-	lgt:apply() 
-	-- "real" polygonal shadows
-	render_wall_shadows()
-
-	show_performance()
-end
-
-function _init()
-	t=0 -- the clock
-	init_blending(6)
-	init_palettes(16)
-
-	build_room(0,0)
-	process_walls()
-
-	ply=indiana:new({
-		pos=v(64,120),facing=3
-	})
-
-	lgt=light:new({
-		pos=v(64,120),bri=1
-	})
-
-	watcher:new({
-		pos=v(112,24)
-	})
-end
-
-function _update()
-	t+=1 -- increment the clock
-	-- let all objects update
-	update_entities()
-	-- check for collisions
-	-- collision callbacks happen
-	-- here
-	do_collisions()
-end
-
--------------------------------
--- collisions
--------------------------------
-
-function c_box(e)
- local b,p=e.cbox,e.pos
- return p 
-  and b:translate(p:ints()) 
-  or b
-end
-
-cqueue={}
-function collide(ent,prop,cb)
- add(cqueue,{e=ent,p=prop,cb=cb}) 
-end
-
-function do_collisions()
- for c in all(cqueue) do
-  local e=c.e
-  local eb=c_box(e)
-  for o in all(entities_with[c.p]) do
-   if o~=e then
-    local ob=c_box(o)
-    if eb:overlaps(ob) then
-     local separate=c.cb(e,o)
-     if separate then
-      local sepv=eb:sepv(ob)
-      e.pos+=sepv
-      eb=eb:translate(sepv)
-     end
-    end
-   end
-  end
- end
- cqueue={}
-end
-
-function debug_collisions()
- for e in all(entities_with.cbox) do
-  local eb=c_box(e)
-  rect(eb.xl,eb.yt,eb.xr,eb.yb,4)
- end
-end
-
-function show_performance()
-	clip()
-	local cpu=flr(stat(1)*100)
-	local fps=-60/flr(-stat(1))
-	local perf=
-		cpu .. "% cpu @ " ..
-		fps ..  " fps"
-	print(perf,0,122,0)
-	print(perf,0,121,fps==60 and 7 or 8)
-end
-
 -------------------------------
 -- room generation
 -------------------------------
@@ -1092,6 +1243,80 @@ function g_randomize(reps)
    end
   end
  end
+end
+
+function _draw()
+	cls() -- clear the screen
+	palt()
+	palt(0,false)
+
+	-- clip to lit rectangle
+	local xl,yt,xr,yb=lgt:extents()
+	clip(xl,yt,xr-xl+1,yb-yt+1) 
+	-- store clipping coords
+	-- globally to let us
+	-- not draw certain objects
+	clipbox=make_box(
+		xl-8,yt,xr+8,yb+24
+	)
+	-- background from level map
+	map(0,0,0,0,16,16) 
+	-- under-entity "blob" shadows
+	render_blob_shadows() 
+	-- entities themselves
+	render_entities()
+	-- "foreground" layer of level
+	-- (parts that need to be
+	--  on top of entities)
+	map(0,0,0,0,16,16,128) 
+	-- apply lighting to all that
+	lgt:apply() 
+	-- "real" polygonal shadows
+	render_wall_shadows()
+
+	show_performance()
+end
+
+function _init()
+	t=0 -- the clock
+	init_blending(6)
+	init_palettes(16)
+
+	build_room(0,0)
+	process_walls()
+
+	ply=indiana:new({
+		pos=v(64,120),facing=3
+	})
+
+	lgt=light:new({
+		pos=v(64,120),bri=1
+	})
+
+	watcher:new({
+		pos=v(112,24)
+	})
+end
+
+function _update()
+	t+=1 -- increment the clock
+	-- let all objects update
+	update_entities()
+	-- check for collisions
+	-- collision callbacks happen
+	-- here
+	do_collisions()
+end
+
+function show_performance()
+	clip()
+	local cpu=flr(stat(1)*100)
+	local fps=-30/flr(-stat(1))
+	local perf=
+		cpu .. "% cpu @ " ..
+		fps ..  " fps"
+	print(perf,0,122,0)
+	print(perf,0,121,fps==30 and 7 or 8)
 end
 
 __gfx__

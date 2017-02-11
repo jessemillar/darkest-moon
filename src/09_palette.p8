@@ -16,7 +16,7 @@ end
 
 function reset_palette()
 	pal()
-	palt(3,true)
+	palt(14,true)
 	palt(0,false)
 end
 

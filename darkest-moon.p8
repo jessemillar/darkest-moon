@@ -304,15 +304,16 @@ function render_entities()
 end
 
 function render_blob_shadows()
- local sh_fill=fl_blend(5)
- for e in all(entities_with.shadow) do
-  local sh=e.shadow
-  local p=e.pos+e.shadow
-  if clipbox:contains(p) then
-   cellipse(p.x,p.y,
-    sh.rx,sh.ry,sh_fill)
-  end
- end
+	local sh_fill=fl_blend(5)
+
+	for e in all(entities_with.shadow) do
+		local sh=e.shadow
+		local p=e.pos+e.shadow
+		if clipbox:contains(p) then
+			cellipse(p.x,p.y,
+				sh.rx,sh.ry,sh_fill)
+		end
+	end
 end
 
 -------------------------------
@@ -839,54 +840,60 @@ end
 -------------------------------
 -- player object
 -------------------------------
+player_speed=1
 
-indiana=kind({
- extends=entity,
- frm=0,
- shadow={x=0,y=0,rx=8,ry=4},
- shoff=v(0,0),
- cbox=make_box(-3,-5,4,1)
+player_sprites={
+	5,37,5,37
+}
+
+player=kind({
+	extends=entity,
+	frm=0,
+	shadow={x=0,y=0,rx=8,ry=4},
+	shoff=v(0,0),
+	cbox=make_box(-3,-5,4,1)
 })
-ind_shadow_locs={
- v(2,0),v(-2,0),v(0,0),v(0,-3)
+
+player_shadow_locs={
+	v(2,0),v(-2,0),v(0,0),v(0,-3)
 }
 
-function indiana:s_default(t)
- -- moving around
- local moving=false
- for i=0,3 do  
-  if btn(i) then
-   if (not btn(4)) self.facing=i+1
-   self.pos+=dirs[i+1]*0.6
-   moving=true
-  end
- end 
- if moving then
-  if t%6==0 then
-   self.frm=(self.frm+1)%3
-  end
- else
-  self.frm=0
- end
- -- update shadow position
- set(self.shadow,ind_shadow_locs[self.facing])
- -- collision detection
- collide(self,"cbox",self.hit_object)
+function player:s_default(t)
+	-- moving around
+	local moving=false
+
+	for i=0,3 do  
+		if btn(i) then
+			if (not btn(4)) self.facing=i+1
+
+			self.pos+=dirs[i+1]*player_speed
+			moving=true
+		end
+	end 
+
+	if moving then
+		if t%6==0 then
+			self.frm=(self.frm+1)%3
+		end
+	else
+		self.frm=0
+	end
+
+	-- update shadow position
+	set(self.shadow,player_shadow_locs[self.facing])
+	-- collision detection
+	collide(self,"cbox",self.hit_object)
 end
 
-function indiana:hit_object(ob)
- return event(ob,"walked_into")
+function player:hit_object(ob)
+	return event(ob,"walked_into")
 end
 
-ind_sprites={
- 195,195,233,227 
-}
-function indiana:render()
- local pos=self.pos
- local sprite=
-  ind_sprites[self.facing]+
-   self.frm*2
- spr(sprite,pos.x-8,pos.y-16,2,2,self.facing==1)
+function player:render()
+	local pos=self.pos
+	local sprite=player_sprites[self.facing]+self.frm*2
+
+	spr(sprite,pos.x-8,pos.y-16,2,2,self.facing==1)
 end
 
 -------------------------------
@@ -944,15 +951,16 @@ light_offsets={
 -------------------------------
 
 watcher=kind({
- extends=entity,
- shadow={x=0,y=0,rx=8,ry=4}
+	extends=entity,
+	shadow={x=0,y=0,rx=8,ry=4}
 })
- function watcher:render(t)
-  local z=sin(t*0.007)*3-3
-  local p=self.pos-v(0,z)-
-   v(8,24)
-  spr(14,p.x,p.y,2,3) 
- end
+
+function watcher:render(t)
+	local z=sin(t*0.007)*3-3
+	local p=self.pos-v(0,z)-v(8,24)
+
+	spr(14,p.x,p.y,2,3) 
+end
 
 -------------------------------
 -- building a room
@@ -1126,8 +1134,8 @@ function generate_room()
  g_connect_up(cpats)
  g_randomize(reps)
  
- -- indiana
- ply=indiana:new({
+ -- player
+ ply=player:new({
   pos=v(lx*8+lw*4,120),facing=3
  })
 end
@@ -1278,14 +1286,13 @@ function _draw()
 end
 
 function _init()
-	t=0 -- the clock
 	init_blending(6)
 	init_palettes(16)
 
 	build_room(0,0)
 	process_walls()
 
-	ply=indiana:new({
+	ply=player:new({
 		pos=v(64,120),facing=3
 	})
 
@@ -1299,7 +1306,6 @@ function _init()
 end
 
 function _update()
-	t+=1 -- increment the clock
 	-- let all objects update
 	update_entities()
 	-- check for collisions
@@ -1320,22 +1326,22 @@ function show_performance()
 end
 
 __gfx__
-00000000ccccccccccccccccccccc16666ccccccccccc55555ccccccccccc55555cccccccccc999999cccccccccccccccccccccccccccccccccccccccccccccc
-00000000cccccccccccccccccc9666666666ccccccc555555555ccccccc555555555cccccc9999090099ccccccccccccccc555cccc1661ccccc555ccccc777cc
-00700700ccccccccccccccccc166666666666cccccc5555555555cccccc5555555555ccccc7999666666ccccccc888cccc55757cc161111ccc55757ccc77777c
-00077000ccccccccccccccccc111166675557ccccc55555775557ccccc55555775557ccccc99966666666ccccc88888ccc57090ccc17090ccc57090ccc77090c
-00077000cccccccccccccccc1111117777777ccccc55557777777ccccc55557777777ccccc96667777777cccccc8090ccc16777ccc57777ccc22222ccc77777c
-00700700cccccccccccccccc1111157707990ccccc55557707990ccccc55557707990cccccc6677a07990cccccc5777ccc61777ccc57777cc222222cccc777cc
-00000000cccccc888ccccccc1111557707990ccccc55557707990ccccc55557707990cccccc6777a07990cccccc5777ccc17777ccc57777cc227777ccc7777cc
-00000000ccccc888888ccccccc15557777977cccccc2257777977cccccc5557777977ccccccc777777977ccccccccccccccccccccccccccccccccccccccccccc
-77777ccccccc88888888ccccccc5557777777ccccc222222277722ccccc5557777777cccccccc7777777ccccccc999ccccccccccccccccccccc7755ccccccccc
-c777cccccccc88887557cccccc55557777777ccccc222222222222ccccc66d77777776ccccccc7777777cccccc9fff9cccc999ccccccccccc7777667ccc7c7cc
-cc7cccccccccc8570790cccccc55557777777cccc225222222222cccccd656d777777dccccccc77777777cccc9f44f4ccc9fff9cccccccccc7777666ccc67ccc
-ccccccccccccc5577777cccccc55157777777cccc225557772227cccccd55667777776cccccc777777777cccc9ff4f4cc9f44f4ccccccccc77775577cccc7ccc
-ccccccccccccc8888888ccccc222211777777cccc255557777777ccccc6556d777777ccccccc777777777ccc9ffffff9c9ff4f4ccccccccc77675577cccc7ccc
-cccccccccccc88888888ccccc2332117777777ccc2555577777777ccccd55d77777777ccccc77777777777cc9f7777f99f7777f9cccccccc66677777cccc7ccc
-cccccccccccc88577777ccccc2332117777777cccc555577777777cccc555577777777ccccc77777777777cc99ffff9999ffff99cccfcccc77767777cccc76cc
-ccccccccccccc5997779ccccc2222119777799ccccc55999777799ccccc55999777799cccccc7999777799ccc999999cc999999cccc9fcccc777777cccc7d7cc
+0000000000000000ccccccccccccc16666ccccccccccc55555ccccccccccc55555cccccccccc999999cccccccccccccccccccccccccccccccccccccccccccccc
+1110000011000000cccccccccc9666666666ccccccc555555555ccccccc555555555cccccc9999090099ccccccccccccccc555cccc1661ccccc555ccccc777cc
+2211000021100000ccccccccc166666666666cccccc5555555555cccccc5555555555ccccc7999666666ccccccc888cccc55757cc161111ccc55757ccc77777c
+3331100033110000ccccccccc111166675557ccccc55555775557ccccc55555775557ccccc99966666666ccccc88888ccc57090ccc17090ccc57090ccc77090c
+4221100044221000cccccccc1111117777777ccccc55557777777ccccc55557777777ccccc96667777777cccccc8090ccc16777ccc57777ccc22222ccc77777c
+5511100055110000cccccccc1111157707990ccccc55557707990ccccc55557707990cccccc6677a07990cccccc5777ccc61777ccc57777cc222222cccc777cc
+66d5100066dd51008ccccccc1111557707990ccccc55557707990ccccc55557707990cccccc6777a07990cccccc5777ccc17777ccc57777cc227777ccc7777cc
+776d100077776d51888ccccccc15557777977cccccc2257777977cccccc5557777977ccccccc777777977ccccccccccccccccccccccccccccccccccccccccccc
+88221000888421008888ccccccc5557777777ccccc222222277722ccccc5557777777cccccccc7777777ccccccc999ccccccccccccccccccccc7755ccccccccc
+94221000999421007557cccccc55557777777ccccc222222222222ccccc66d77777776ccccccc7777777cccccc9fff9cccc999ccccccccccc7777667ccc7c7cc
+a9421000aa9942100790cccccc55557777777cccc225222222222cccccd656d777777dccccccc77777777cccc9f44f4ccc9fff9cccccccccc7777666ccc67ccc
+bb331000bbb331007777cccccc55157777777cccc225557772227cccccd55667777776cccccc777777777cccc9ff4f4cc9f44f4ccccccccc77775577cccc7ccc
+ccd51000ccdd51008888ccccc222211777777cccc255557777777ccccc6556d777777ccccccc777777777ccc9ffffff9c9ff4f4ccccccccc77675577cccc7ccc
+dd511000dd5110008888ccccc2332117777777ccc2555577777777ccccd55d77777777ccccc77777777777cc9f7777f99f7777f9cccccccc66677777cccc7ccc
+ee421000ee4442107777ccccc2332117777777cccc555577777777cccc555577777777ccccc77777777777cc99ffff9999ffff99cccfcccc77767777cccc76cc
+f9421000fff942107779ccccc2222119777799ccccc55999777799ccccc55999777799cccccc7999777799ccc999999cc999999cccc9fcccc777777cccc7d7cc
 ccc24ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc99ccc99ccccccccccccccc7ccccccccccccccccccccccccccccccc
 ccc544cccccccccccccccccccccc966666ccccccccccc55555ccccccccccc55555cccccccc79999999cccccccccccc67777ccccccccccccccccccccccccccccc
 ccc542ccccccccccccccccccc11666666666ccccccc555555555ccccccc555555555cccccc9999090099ccccccccc7677777cccccccccccc7ccccccccccccccc
@@ -1615,3 +1621,4 @@ __music__
 00 41424344
 00 41424344
 00 41424344
+

@@ -98,13 +98,14 @@ function render_entities()
 end
 
 function render_blob_shadows()
- local sh_fill=fl_blend(5)
- for e in all(entities_with.shadow) do
-  local sh=e.shadow
-  local p=e.pos+e.shadow
-  if clipbox:contains(p) then
-   cellipse(p.x,p.y,
-    sh.rx,sh.ry,sh_fill)
-  end
- end
+	local sh_fill=fl_blend(5)
+
+	for e in all(entities_with.shadow) do
+		local sh=e.shadow
+		local p=e.pos+e.shadow
+		if clipbox:contains(p) then
+			cellipse(p.x,p.y,
+				sh.rx,sh.ry,sh_fill)
+		end
+	end
 end

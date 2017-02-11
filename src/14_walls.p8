@@ -170,8 +170,8 @@ function generate_room()
  g_connect_up(cpats)
  g_randomize(reps)
  
- -- indiana
- ply=indiana:new({
+ -- player
+ ply=player:new({
   pos=v(lx*8+lw*4,120),facing=3
  })
 end

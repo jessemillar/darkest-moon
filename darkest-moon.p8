@@ -2,305 +2,280 @@ pico-8 cartridge // http://www.pico-8.com
 version 8
 __lua__
 
-------------------------------
--- utilities
-------------------------------
-
 function round(x)
- return flr(x+0.5)
+	return flr(x+0.5)
 end
 
 -- copies props to obj
--- if obj is nil, a new
--- object will be created,
--- so set(nil,{...}) copies
--- the object
+-- if obj is nil, a new object will be created, so set(nil,{...}) copies the object
 function set(obj,props)
- obj=obj or {}
- for k,v in pairs(props) do
-  obj[k]=v
- end
- return obj
+	obj=obj or {}
+
+	for k,v in pairs(props) do
+		obj[k]=v
+	end
+
+	return obj
 end
 
--- used for callbacks into
--- entities that might or
--- might not have a method
--- to handle an event
+-- used for callbacks into entities that might or might not have a method to handle an event
 function event(ob,name,...)
- local cb=ob[name]
- return type(cb)=="function"
-  and cb(ob,...)
-  or cb
+	local cb=ob[name]
+
+	return type(cb)=="function"
+		and cb(ob,...)
+		or cb
 end
 
--- returns smallest element
--- of seq, according to key
--- function 
+-- returns smallest element of seq, according to key function 
 function min_of(seq,key)
- local me,mk=nil,32767
- for e in all(seq) do
-  local k=key(e)
-  if k<mk then
-   me,mk=e,k
-  end
- end
- return me
+	local me,mk=nil,32767
+
+	for e in all(seq) do
+		local k=key(e)
+
+		if k<mk then
+			me,mk=e,k
+		end
+	end
+
+	return me
 end
 
-------------------------------
--- class system
-------------------------------
-
--- creates a "class" object
--- with support for basic
--- inheritance/initialization
+-- creates a "class" object with support for basic inheritance/initialization
 function kind(kob)
- kob=kob or {}
- setmetatable(kob,{__index=kob.extends})
- 
- kob.new=function(self,ob)
-  ob=set(ob,{kind=kob})
-  setmetatable(ob,{__index=kob})
-  if (kob.create) ob:create()
-  return ob
- end
- 
- return kob 
+	kob=kob or {}
+
+	setmetatable(kob,{__index=kob.extends})
+
+	kob.new=function(self,ob)
+		ob=set(ob,{kind=kob})
+
+		setmetatable(ob,{__index=kob})
+
+		if (kob.create) ob:create()
+
+		return ob
+	end
+	 
+	return kob 
 end
 
--------------------------------
--- vectors
--------------------------------
-
--- for some stuff, we want
--- vector math - so we make
--- a vector type with all the
--- usual operations
+-- for some stuff, we want vector math - so we make a vector type with all the usual operations
 vec={}
+
 function vec.__add(v1,v2)
- return v(v1.x+v2.x,v1.y+v2.y)
+	return v(v1.x+v2.x,v1.y+v2.y)
 end
+
 function vec.__sub(v1,v2)
- return v(v1.x-v2.x,v1.y-v2.y)
+	return v(v1.x-v2.x,v1.y-v2.y)
 end
+
 function vec.__mul(v1,a)
- return v(v1.x*a,v1.y*a)
+	return v(v1.x*a,v1.y*a)
 end
+
 function vec.__mul(v1,a)
- return v(v1.x*a,v1.y*a)
+	return v(v1.x*a,v1.y*a)
 end
+
 function vec.__div(v1,a)
- return v(v1.x/a,v1.y/a)
+	return v(v1.x/a,v1.y/a)
 end
--- we use the ^ operator
--- to mean dot product
+
+-- we use the ^ operator to mean dot product
 function vec.__pow(v1,v2)
- return v1.x*v2.x+v1.y*v2.y
+	return v1.x*v2.x+v1.y*v2.y
 end
+
 function vec.__unm(v1)
- return v(-v1.x,-v1.y)
+	return v(-v1.x,-v1.y)
 end
--- this is not really the
--- length of the vector,
--- but length squared -
--- easier to calculate,
--- and can be used for most
--- of the same stuff
+
+-- this is not really the length of the vector, but length squared - easier to calculate, and can be used for most of the same stuff
 function vec.__len(v1)
- local x,y=v1:split()
- return x*x+y*y
+	local x,y=v1:split()
+	return x*x+y*y
 end
+
 -- normalized vector
 function vec:norm()
- return self/sqrt(#self)
+	return self/sqrt(#self)
 end
+
 -- rotated 90-deg clockwise
 function vec:rotcw()
- return v(-self.y,self.x)
+	return v(-self.y,self.x)
 end
--- force coordinates to
--- integers
+
+-- force coordinates to integers
 function vec:ints()
- return v(flr(self.x),flr(self.y))
+	return v(flr(self.x),flr(self.y))
 end
--- used for destructuring,
--- i.e.:  x,y=v:split()
+
+-- used for destructuring, i.e.:  x,y=v:split()
 function vec:split()
- return self.x,self.y
+	return self.x,self.y
 end
--- has to be there so
--- our metatable works
--- for both operators 
--- and methods
+
+-- has to be there so our metatable works for both operators and methods
 vec.__index = vec
 
 -- creates a new vector
 function v(x,y)
- local vector={x=x,y=y}
- setmetatable(vector,vec)
- return vector
+	local vector={x=x,y=y}
+	setmetatable(vector,vec)
+	return vector
 end
 
--- vector for each cardinal
--- direction, ordered the
--- same way pico-8 d-pad is
+-- vector for each cardinal direction, ordered the same way pico-8 d-pad is
 dirs={
- v(-1,0),v(1,0),
- v(0,-1),v(0,1)
+	v(-1,0),v(1,0),
+	v(0,-1),v(0,1)
 }
 
--------------------------------
--- boxes
--------------------------------
-
--- a box is just a rectangle
--- with some helper methods
+-- a box is just a rectangle with some helper methods
 box=kind()
- function box:translate(v)
-  return make_box(
-   self.xl+v.x,self.yt+v.y,
-   self.xr+v.x,self.yb+v.y
-  )
- end
+
+function box:translate(v)
+	return make_box(
+		self.xl+v.x,self.yt+v.y,
+		self.xr+v.x,self.yb+v.y
+	)
+end
  
  function box:overlaps(b)
-  return 
-   self.xr>=b.xl and 
-   b.xr>=self.xl and
-   self.yb>=b.yt and 
-   b.yb>=self.yt
+	return 
+		self.xr>=b.xl and 
+		b.xr>=self.xl and
+		self.yb>=b.yt and 
+		b.yb>=self.yt
  end
  
  function box:contains(pt)
-  return pt.x>=self.xl and
-   pt.y>=self.yt and
-   pt.x<=self.xr and
-   pt.y<=self.yb
+	return pt.x>=self.xl and
+		pt.y>=self.yt and
+		pt.x<=self.xr and
+		pt.y<=self.yb
  end
     
  function box:sepv(b)
-  local candidates={
-   v(b.xl-self.xr-1,0),
-   v(b.xr-self.xl+1,0),
-   v(0,b.yt-self.yb-1),
-   v(0,b.yb-self.yt+1)
-  }
-  return min_of(candidates,vec.__len)   
+	local candidates={
+		v(b.xl-self.xr-1,0),
+		v(b.xr-self.xl+1,0),
+		v(0,b.yt-self.yb-1),
+		v(0,b.yb-self.yt+1)
+	}
+
+	return min_of(candidates,vec.__len)   
  end
 
 function make_box(xl,yt,xr,yb)
- if (xl>xr) xl,xr=xr,xl
- if (yt>yb) yt,yb=yb,yt
- return box:new({
-  xl=xl,yt=yt,xr=xr,yb=yb
- })
+	if (xl>xr) xl,xr=xr,xl
+	if (yt>yb) yt,yb=yb,yt
+
+	return box:new({
+		xl=xl,yt=yt,xr=xr,yb=yb
+	})
 end
 
 function vec_box(v1,v2)
- return make_box(
-  v1.x,v1.y,
-  v2.x,v2.y
- )
+	return make_box(
+		v1.x,v1.y,
+		v2.x,v2.y
+	)
 end
-
-------------------------------
--- entity system
-------------------------------
 
 -- entity root type
 entity=kind({
- t=0,state="s_default"
+	t=0,state="s_default"
 })
 
 -- a big bag of all entities
 entities={}
 
--- entities with some special
--- props are tracked separately
+-- entities with some special props are tracked separately
 entities_with={}
+
 tracked_props={
- "render","cbox",
- "walls","shadow"
+	"render","cbox",
+	"walls","shadow"
 }
 
--- used to add/remove objects
--- in the entities_with list
+-- used to add/remove objects in the entities_with list
 function update_with_table(e,fn)
- for prop in all(tracked_props) do
-  if e[prop] then
-   local lst=
-    entities_with[prop] or {}
-   fn(lst,e)
-   entities_with[prop]=lst
-  end
- end
+	for prop in all(tracked_props) do
+		if e[prop] then
+			local lst=entities_with[prop] or {}
+
+			fn(lst,e)
+			entities_with[prop]=lst
+		end
+	end
 end
 
--- all entities do common
--- stuff when created -
--- mostly register in lists
+-- all entities do common stuff when created - mostly register in lists
 e_id=1
+
 function entity:create()
- if not self.name then
-  self.name=e_id..""
-  e_id+=1
- end
- local name=self.name
- entities[name]=self
- 
- update_with_table(self,add) 
+	if not self.name then
+		self.name=e_id..""
+		e_id+=1
+	end
+
+	local name=self.name
+
+	entities[name]=self
+
+	update_with_table(self,add)
 end
 
--- this is the core of our
--- _update() method - update
--- each entity in turn
+-- this is the core of our _update() method - update each entity in turn
 function update_entities()
- for n,e in pairs(entities) do
-  local update_fn=e[e.state]  
-  local result = update_fn
-   and update_fn(e,e.t)
-   or nil
-  
-  if result then
-   if result==true then
-    -- remove entity
-    entities[n]=nil
-    update_with_table(e,del)
-   else
-    -- set state
-    set(e,{
-     state=result,t=0
-    })    
-   end
-  else
-   -- bump timer in this state
-   e.t+=1
-  end
- end
+	for n,e in pairs(entities) do
+		local update_fn=e[e.state]
+		local result = update_fn
+			and update_fn(e,e.t)
+			or nil
+
+		if result then
+			if result==true then
+				-- remove entity
+				entities[n]=nil
+				update_with_table(e,del)
+			else
+				-- set state
+				set(e,{
+					state=result,t=0
+				})
+			end
+		else
+			-- bump timer in this state
+			e.t+=1
+		end
+	end
 end
 
-------------------------------
--- entity rendering
-------------------------------
-
--- renders entities, sorted by
--- y to get proper occlusion
+-- renders entities, sorted by y to get proper occlusion
 function render_entities()
- ysorted={}
- 
- for d in all(entities_with.render) do
-  local y=d.pos and flr(d.pos.y) or 139
-  ysorted[y]=ysorted[y] or {}
-  add(ysorted[y],d)
- end
- for y=clipbox.yt,clipbox.yb do
-  for d in all(ysorted[y]) do
-   reset_palette()
-   d:render(d.t)
-  end
-  reset_palette()
- end
+	ysorted={}
+
+	for d in all(entities_with.render) do
+		local y=d.pos and flr(d.pos.y) or 139
+
+		ysorted[y]=ysorted[y] or {}
+		add(ysorted[y],d)
+	end
+
+	for y=clipbox.yt,clipbox.yb do
+		for d in all(ysorted[y]) do
+			reset_palette()
+			d:render(d.t)
+		end
+
+		reset_palette()
+	end
 end
 
 function render_blob_shadows()
@@ -309,71 +284,61 @@ function render_blob_shadows()
 	for e in all(entities_with.shadow) do
 		local sh=e.shadow
 		local p=e.pos+e.shadow
+
 		if clipbox:contains(p) then
 			cellipse(p.x,p.y,
-				sh.rx,sh.ry,sh_fill)
+			sh.rx,sh.ry,sh_fill)
 		end
 	end
 end
 
--------------------------------
--- collisions
--------------------------------
-
 function c_box(e)
- local b,p=e.cbox,e.pos
- return p 
-  and b:translate(p:ints()) 
-  or b
+	local b,p=e.cbox,e.pos
+	return p
+		and b:translate(p:ints())
+		or b
 end
 
 cqueue={}
+
 function collide(ent,prop,cb)
- add(cqueue,{e=ent,p=prop,cb=cb}) 
+	add(cqueue,{e=ent,p=prop,cb=cb})
 end
 
 function do_collisions()
- for c in all(cqueue) do
-  local e=c.e
-  local eb=c_box(e)
-  for o in all(entities_with[c.p]) do
-   if o~=e then
-    local ob=c_box(o)
-    if eb:overlaps(ob) then
-     local separate=c.cb(e,o)
-     if separate then
-      local sepv=eb:sepv(ob)
-      e.pos+=sepv
-      eb=eb:translate(sepv)
-     end
-    end
-   end
-  end
- end
- cqueue={}
+	for c in all(cqueue) do
+		local e=c.e
+		local eb=c_box(e)
+
+		for o in all(entities_with[c.p]) do
+			if o~=e then
+				local ob=c_box(o)
+				if eb:overlaps(ob) then
+					local separate=c.cb(e,o)
+					if separate then
+						local sepv=eb:sepv(ob)
+						e.pos+=sepv
+						eb=eb:translate(sepv)
+					end
+				end
+			end
+		end
+	end
+
+	cqueue={}
 end
 
 function debug_collisions()
- for e in all(entities_with.cbox) do
-  local eb=c_box(e)
-  rect(eb.xl,eb.yt,eb.xr,eb.yb,4)
- end
+	for e in all(entities_with.cbox) do
+		local eb=c_box(e)
+
+		rect(eb.xl,eb.yt,eb.xr,eb.yb,4)
+	end
 end
 
-------------------------------
--- drawing shapes
-------------------------------
+--  all shapes accept a fill function which is responsible for actual drawing the functions just do calculations and clipping
 
---  all shapes accept a fill
--- function which is responsible
--- for actual drawing
---  the functions just do
--- calculations and clipping
-
--- draws a polygon from an
--- array of points, using
--- ln() to fill it
--- points must be clockwise
+-- draws a polygon from an array of points, using ln() to fill it points must be clockwise
 function ngon(pts,ln)
  local xls,xrs=ngon_setup(pts)
  for y,xl in pairs(xls) do
@@ -382,9 +347,7 @@ function ngon(pts,ln)
  end
 end
 
--- like ngon, but with a
--- rectangular hole (used
--- to mask shadows)
+-- like ngon, but with a rectangular hole (used to mask shadows)
 dummy_hole={tl={y=16000},br={}}
 function holed_ngon(pts,hole,ln)
  local xls,xrs=ngon_setup(pts)
@@ -409,8 +372,7 @@ function holed_ngon(pts,hole,ln)
  end
 end
 
--- sets up min/max x of
--- each polygon line
+-- sets up min/max x of each polygon line
 function ngon_setup(pts)
  local xls,xrs={},{} 
  local npts=#pts
@@ -443,8 +405,7 @@ function ngon_edge(a,b,xls,xrs)
  end
 end
 
--- draws a filled rectangle
--- with a custom fill fn
+-- draws a filled rectangle with a custom fill fn
 function crect(x1,y1,x2,y2,ln)
  x1,x2=max(x1,0),mid(x2,127)
  y1,y2=max(y1,0),min(y2,127)
@@ -454,8 +415,7 @@ function crect(x1,y1,x2,y2,ln)
  end
 end
 
--- draws a filled ellipse
--- with a custom fill fn
+-- draws a filled ellipse with a custom fill fn
 function cellipse(cx,cy,rx,ry,ln)
  cy,ry=round(cy),round(ry)
  local w=0
@@ -497,20 +457,16 @@ end
 -- basic fills
 -------------------------------
 
--- a fill function is just
--- a function(x1,x2,y) that
--- draws a horizontal line
+-- a fill function is just a function(x1,x2,y) that draws a horizontal line
 
--- returns a fill function
--- that draws a solid color
+-- returns a fill function that draws a solid color
 function fl_color(c)
  return function(x1,x2,y)
   rectfill(x1,y,x2,y,c)
  end
 end
 
--- used as fill function
--- for ignored areas
+-- used as fill function for ignored areas
 function fl_none()
 end
 
@@ -518,8 +474,7 @@ end
 -- fast blend fill
 -------------------------------
 
--- sets up everything
--- blend_line will need
+-- sets up everything blend_line will need
 function init_blending(nlevels)
  -- tabulate sqrt() for speed
  _sqrt={}
@@ -527,13 +482,9 @@ function init_blending(nlevels)
   _sqrt[i]=sqrt(i)
  end
 
- -- populate look-up tables
- -- for blending based on
- -- palettes in sprite mem
+ -- populate look-up tables for blending based on palettes in sprite mem
  for lv=1,nlevels do
-  -- light luts are stored in
-  -- memory directly, table
-  -- indexing is costly
+  -- light luts are stored in memory directly, table indexing is costly
   local addr=0x4300+lv*0x100
   local sx=lv-1
   for c1=0,15 do

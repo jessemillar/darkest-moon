@@ -1,17 +1,6 @@
-------------------------------
--- drawing shapes
-------------------------------
+--  all shapes accept a fill function which is responsible for actual drawing the functions just do calculations and clipping
 
---  all shapes accept a fill
--- function which is responsible
--- for actual drawing
---  the functions just do
--- calculations and clipping
-
--- draws a polygon from an
--- array of points, using
--- ln() to fill it
--- points must be clockwise
+-- draws a polygon from an array of points, using ln() to fill it points must be clockwise
 function ngon(pts,ln)
  local xls,xrs=ngon_setup(pts)
  for y,xl in pairs(xls) do
@@ -20,9 +9,7 @@ function ngon(pts,ln)
  end
 end
 
--- like ngon, but with a
--- rectangular hole (used
--- to mask shadows)
+-- like ngon, but with a rectangular hole (used to mask shadows)
 dummy_hole={tl={y=16000},br={}}
 function holed_ngon(pts,hole,ln)
  local xls,xrs=ngon_setup(pts)
@@ -47,8 +34,7 @@ function holed_ngon(pts,hole,ln)
  end
 end
 
--- sets up min/max x of
--- each polygon line
+-- sets up min/max x of each polygon line
 function ngon_setup(pts)
  local xls,xrs={},{} 
  local npts=#pts
@@ -81,8 +67,7 @@ function ngon_edge(a,b,xls,xrs)
  end
 end
 
--- draws a filled rectangle
--- with a custom fill fn
+-- draws a filled rectangle with a custom fill fn
 function crect(x1,y1,x2,y2,ln)
  x1,x2=max(x1,0),mid(x2,127)
  y1,y2=max(y1,0),min(y2,127)
@@ -92,8 +77,7 @@ function crect(x1,y1,x2,y2,ln)
  end
 end
 
--- draws a filled ellipse
--- with a custom fill fn
+-- draws a filled ellipse with a custom fill fn
 function cellipse(cx,cy,rx,ry,ln)
  cy,ry=round(cy),round(ry)
  local w=0
@@ -135,20 +119,16 @@ end
 -- basic fills
 -------------------------------
 
--- a fill function is just
--- a function(x1,x2,y) that
--- draws a horizontal line
+-- a fill function is just a function(x1,x2,y) that draws a horizontal line
 
--- returns a fill function
--- that draws a solid color
+-- returns a fill function that draws a solid color
 function fl_color(c)
  return function(x1,x2,y)
   rectfill(x1,y,x2,y,c)
  end
 end
 
--- used as fill function
--- for ignored areas
+-- used as fill function for ignored areas
 function fl_none()
 end
 
@@ -156,8 +136,7 @@ end
 -- fast blend fill
 -------------------------------
 
--- sets up everything
--- blend_line will need
+-- sets up everything blend_line will need
 function init_blending(nlevels)
  -- tabulate sqrt() for speed
  _sqrt={}
@@ -165,13 +144,9 @@ function init_blending(nlevels)
   _sqrt[i]=sqrt(i)
  end
 
- -- populate look-up tables
- -- for blending based on
- -- palettes in sprite mem
+ -- populate look-up tables for blending based on palettes in sprite mem
  for lv=1,nlevels do
-  -- light luts are stored in
-  -- memory directly, table
-  -- indexing is costly
+  -- light luts are stored in memory directly, table indexing is costly
   local addr=0x4300+lv*0x100
   local sx=lv-1
   for c1=0,15 do

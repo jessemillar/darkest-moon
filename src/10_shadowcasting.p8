@@ -47,21 +47,7 @@ end
 -- solids (light obscuring)
 -------------------------------
 
-gobs={
-	sd_spire={
-		sprite={n=67,w=2,h=4},
-		tile=115,
-		off=v(8,4),
-		walls={
-		 {-8,0,8,0,3},
-		 {8,0,8,-15,1},
-		 {8,-15,-8,-15,4},
-		 {-8,-15,-8,0,2}
-		},
-		hole={-4,-32,3,-15},
-		cbox=make_box(-8,-15,7,0)
-	}
-}
+gobs={}
 
 solid=kind({
  extends=entity

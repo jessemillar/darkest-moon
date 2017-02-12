@@ -325,7 +325,7 @@ function do_collisions()
 		end
 	end
 
-	cqueue={}
+	cqueue={} -- wipe the collision queue
 end
 
 function debug_collisions()
@@ -712,21 +712,7 @@ end
 -- solids (light obscuring)
 -------------------------------
 
-gobs={
-	sd_spire={
-		sprite={n=67,w=2,h=4},
-		tile=115,
-		off=v(8,4),
-		walls={
-		 {-8,0,8,0,3},
-		 {8,0,8,-15,1},
-		 {8,-15,-8,-15,4},
-		 {-8,-15,-8,0,2}
-		},
-		hole={-4,-32,3,-15},
-		cbox=make_box(-8,-15,7,0)
-	}
-}
+gobs={}
 
 solid=kind({
  extends=entity
@@ -977,8 +963,9 @@ end
 
 chest=kind({
 	extends=entity,
+	walked_into=true,
 	shadow={x=0,y=-2,rx=8,ry=4},
-	cbox=make_box(-8,-16,7,-4)
+	cbox=make_box(-8,-8,7,-4)
 })
 
 function chest:s_default(t)

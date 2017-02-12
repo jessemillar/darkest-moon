@@ -31,7 +31,7 @@ function do_collisions()
 		end
 	end
 
-	cqueue={}
+	cqueue={} -- wipe the collision queue
 end
 
 function debug_collisions()

@@ -74,6 +74,7 @@ wparams={
  {f=v(0,12),t=v(-1,0),
   we=v(-1,12),h=v(-1,14)},
 }
+
 function add_wall(from,to,dr)
  local d,ps=dirs[dr],wparams[dr]
  local cs,ce,co=

@@ -13,7 +13,7 @@ function _init()
 		pos=v(64,120),bri=1
 	})
 
-	watcher:new({
-		pos=v(112,24)
+	chst=chest:new({
+		pos=v(61,20)
 	})
 end

@@ -32,6 +32,8 @@ function _draw()
 	-- "real" polygonal shadows
 	render_wall_shadows()
 
+	tbox_draw() -- draw the message boxes (if any)
+
 	-- debug_collisions()
 	-- show_performance()
 end

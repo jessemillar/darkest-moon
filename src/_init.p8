@@ -16,7 +16,7 @@ function _init()
 	})
 
 	wht=wheat:new({
-		pos=v(80,50)
+		pos=v(30,50)
 	})
 
 	chst=chest:new({

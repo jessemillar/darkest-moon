@@ -929,7 +929,7 @@ function _draw()
 	-- "real" polygonal shadows
 	render_wall_shadows()
 
-	debug_collisions()
+	-- debug_collisions()
 	-- show_performance()
 end
 
@@ -951,7 +951,7 @@ function _init()
 	})
 
 	wht=wheat:new({
-		pos=v(80,50)
+		pos=v(30,50)
 	})
 
 	chst=chest:new({
@@ -1100,11 +1100,20 @@ end
 
 wheat=kind({
 	extends=entity,
-	cbox=make_box(-4,-4,3,3)
+	cbox=make_box(-4,-4,3,3),
+	growth=0
 })
 
 function wheat:s_default(t)
 	collide(self,"cbox",self.walked_into)
+
+	printh(self.t)
+
+	if self.t>0 and self.t%200==0 then
+		if self.growth<3 then
+			self.growth+=1
+		end
+	end
 end
 
 function wheat:walked_into(ob)
@@ -1114,7 +1123,7 @@ end
 function wheat:render(t)
 	local pos=self.pos
 
-	spr(128,pos.x-4,pos.y-4) 
+	spr(128+self.growth,pos.x-4,pos.y-4) 
 end
 
 __gfx__

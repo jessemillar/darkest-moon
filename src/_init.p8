@@ -15,10 +15,6 @@ function _init()
 		pos=v(64,120),bri=0.85
 	})
 
-	wht=wheat:new({
-		pos=v(30,50)
-	})
-
 	chst=chest:new({
 		pos=v(61,20)
 	})

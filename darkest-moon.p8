@@ -950,10 +950,6 @@ function _init()
 		pos=v(64,120),bri=0.85
 	})
 
-	wht=wheat:new({
-		pos=v(30,50)
-	})
-
 	chst=chest:new({
 		pos=v(61,20)
 	})
@@ -1061,13 +1057,19 @@ player_shadow_locs={
 }
 
 function player:s_default(t)
+	-- planting wheat
+	if btnp(4) then
+		wheat:new({
+			pos=v(flr(self.pos.x/8)*8,flr(self.pos.y/8)*8+8)
+		})
+	end
+
 	-- moving around
 	local moving=false
 
 	for i=0,3 do  
 		if btn(i) then
-			if (not btn(4)) self.facing=i+1
-
+			self.facing=i+1
 			self.pos+=dirs[i+1]*player_speed
 			moving=true
 		end
@@ -1107,17 +1109,15 @@ wheat=kind({
 function wheat:s_default(t)
 	collide(self,"cbox",self.walked_into)
 
-	printh(self.t)
-
 	if self.t>0 and self.t%200==0 then
-		if self.growth<3 then
+		if self.growth<2 then
 			self.growth+=1
 		end
 	end
 end
 
 function wheat:walked_into(ob)
-	printh(time())
+	-- printh(time())
 end
 
 function wheat:render(t)

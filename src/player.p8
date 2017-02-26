@@ -17,13 +17,19 @@ player_shadow_locs={
 }
 
 function player:s_default(t)
+	-- planting wheat
+	if btnp(4) then
+		wheat:new({
+			pos=v(flr(self.pos.x/8)*8,flr(self.pos.y/8)*8+8)
+		})
+	end
+
 	-- moving around
 	local moving=false
 
 	for i=0,3 do  
 		if btn(i) then
-			if (not btn(4)) self.facing=i+1
-
+			self.facing=i+1
 			self.pos+=dirs[i+1]*player_speed
 			moving=true
 		end

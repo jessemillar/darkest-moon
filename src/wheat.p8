@@ -7,17 +7,15 @@ wheat=kind({
 function wheat:s_default(t)
 	collide(self,"cbox",self.walked_into)
 
-	printh(self.t)
-
 	if self.t>0 and self.t%200==0 then
-		if self.growth<3 then
+		if self.growth<2 then
 			self.growth+=1
 		end
 	end
 end
 
 function wheat:walked_into(ob)
-	printh(time())
+	-- printh(time())
 end
 
 function wheat:render(t)

@@ -11,7 +11,7 @@ light_offsets={
 
 function light:s_default()
 	-- anchor to avatar
-	self.pos=ply.pos
+	self.pos=plyr.pos
 end
 
 function light:range()

@@ -9,7 +9,7 @@ player=kind({
 	frm=0,
 	shadow={x=0,y=0,rx=8,ry=4},
 	shoff=v(0,0),
-	cbox=make_box(-3,-5,4,1)
+	cbox=make_box(-3,-6,4,1)
 })
 
 player_shadow_locs={
@@ -17,13 +17,6 @@ player_shadow_locs={
 }
 
 function player:s_default(t)
-	-- planting wheat
-	if btnp(4) then
-		wheat:new({
-			pos=v(flr(self.pos.x/8)*8,flr(self.pos.y/8)*8+8)
-		})
-	end
-
 	-- moving around
 	local moving=false
 
@@ -47,6 +40,31 @@ function player:s_default(t)
 	set(self.shadow,player_shadow_locs[self.facing])
 	-- collision detection
 	collide(self,"cbox",self.hit_object)
+
+	-- planting wheat in a grid
+	local vertical_shift=0
+	local horizontal_shift=0
+
+	if self.facing==1 then
+		horizontal_shift=-16
+	elseif self.facing==2 then
+		horizontal_shift=16
+	elseif self.facing==3 then
+		vertical_shift=-16
+	else
+		vertical_shift=8
+	end
+
+	local reticle_left=flr(self.pos.x/8)*8+horizontal_shift+4
+	local reticle_top=flr(self.pos.y/8)*8+vertical_shift+4
+
+	rtcl.pos=v(reticle_left,reticle_top)
+
+	if btnp(4) then
+		wheat:new({
+			pos=v(reticle_left,reticle_top)
+		})
+	end
 end
 
 function player:hit_object(ob)

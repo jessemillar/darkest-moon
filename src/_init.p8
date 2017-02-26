@@ -7,12 +7,16 @@ function _init()
 	build_room(0,0)
 	process_walls()
 
-	ply=player:new({
+	plyr=player:new({
 		pos=v(22,42),facing=4
 	})
 
+	rtcl=reticle:new({
+		pos=plyr.pos
+	})
+
 	lgt=light:new({
-		pos=v(64,120),bri=0.85
+		pos=plyr.pos,bri=0.85
 	})
 
 	chst=chest:new({

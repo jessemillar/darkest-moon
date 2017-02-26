@@ -38,6 +38,6 @@ function debug_collisions()
 	for e in all(entities_with.cbox) do
 		local eb=c_box(e)
 
-		rect(eb.xl,eb.yt,eb.xr,eb.yb,4)
+		rect(eb.xl,eb.yt,eb.xr,eb.yb,14)
 	end
 end

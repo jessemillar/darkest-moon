@@ -15,5 +15,5 @@ end
 function chest:render(t)
 	local pos=self.pos
 
-	spr(78,pos.x-8,pos.y-16,2,2) 
+	spr(160,pos.x-8,pos.y-16,2,2) 
 end

@@ -1,7 +1,3 @@
--------------------------------
--- light object
--------------------------------
-
 light=kind({
 	extends=entity,
 	off=v(0,0),
@@ -14,17 +10,8 @@ light_offsets={
 }
 
 function light:s_default()
-	--anchor to avatar
+	-- anchor to avatar
 	self.pos=ply.pos
-	
-	--controlling the light
-	if btn(4) and self.bri>0.2 then
-		self.bri-=0.02
-	end
-
-	if btn(5) and self.bri<63/44 then
-		self.bri+=0.02
-	end
 end
 
 function light:range()

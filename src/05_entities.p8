@@ -47,9 +47,7 @@ end
 function update_entities()
 	for n,e in pairs(entities) do
 		local update_fn=e[e.state]
-		local result = update_fn
-			and update_fn(e,e.t)
-			or nil
+		local result = update_fn and update_fn(e,e.t) or nil
 
 		if result then
 			if result==true then

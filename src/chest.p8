@@ -9,7 +9,10 @@ function chest:s_default(t)
 end
 
 function chest:walked_into(ob)
-	printh(time())
+	if player_inventory_harvested>0 then
+		sfx(10)
+		player_inventory_harvested=0
+	end
 end
 
 function chest:render(t)

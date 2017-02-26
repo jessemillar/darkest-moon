@@ -63,6 +63,7 @@ function player:s_default(t)
 	rtcl.pos=v(reticle_left,reticle_top)
 
 	if btnp(4) then
+		sfx(12)
 		wheat:new({
 			pos=v(reticle_left,reticle_top)
 		})

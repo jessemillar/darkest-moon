@@ -31,6 +31,7 @@ function wheat:render(t)
 end
 
 function wheat:s_delete()
+	sfx(11)
 	player_inventory_harvested+=1
 	printh(player_inventory_harvested)
 	return true

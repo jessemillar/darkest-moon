@@ -688,7 +688,7 @@ function render_shadow_fn()
 	 if (dist<=0) return 
 	 local ds,de=s-p,e-p
 	 if (#ds>rngsq and #de>rngsq) return
-	 local horiz=wall.d.x~=0
+	 local horiz=wall.d.x!=0
 	 
 	 local cs,ce=
 	  rng/max(abs(ds.x),abs(ds.y)),
@@ -810,8 +810,8 @@ function process_walls_with(dout,din,mask,wdir)
 	   l+=din
 	   c+=1
 	   bv=flags(l,mask)
-	  until c==16 or bv~=prv
-	  if prv~=0 then
+	  until c==16 or bv!=prv
+	  if prv!=0 then
 	   add_wall(sl,l,wdir)
 	  end
 	  sl=l
@@ -881,7 +881,7 @@ function find_wall_fronts()
   for x=0,16 do
    c=flags(v(x,y),16)+
      flags(v(x,y+1),16)
-   if c~=pc or c==16 then
+   if c!=pc or c==16 then
     if pc==32 then
      w=wallfront:new({
       mx=sx,my=y,mw=x-sx,
@@ -1062,13 +1062,31 @@ function marauder:s_default(t)
 	-- moving around
 	local moving=false
 
-	for i=0,3 do  
-		if btn(i) then
-			self.facing=i+1
-			self.pos+=dirs[i+1]*marauder_speed
-			moving=true
+	if self.pos and plyr.pos then
+		if flr(self.pos.x)!=flr(plyr.pos.x) then
+			if self.pos.x<plyr.pos.x then
+				self.facing=2
+				self.pos.x+=marauder_speed/2
+				moving=true
+			elseif self.pos.x>plyr.pos.x then
+				self.facing=1
+				self.pos.x-=marauder_speed/2
+				moving=true
+			end
 		end
-	end 
+
+		if flr(self.pos.y)!=flr(plyr.pos.y) then
+			if self.pos.y<plyr.pos.y then
+				self.facing=4
+				self.pos.y+=marauder_speed/2
+				moving=true
+			elseif self.pos.y>plyr.pos.y then
+				self.facing=3
+				self.pos.y-=marauder_speed/2
+				moving=true
+			end
+		end
+	end
 
 	if moving then
 		if t%6==0 then

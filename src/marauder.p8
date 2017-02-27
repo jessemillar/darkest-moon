@@ -20,13 +20,31 @@ function marauder:s_default(t)
 	-- moving around
 	local moving=false
 
-	for i=0,3 do  
-		if btn(i) then
-			self.facing=i+1
-			self.pos+=dirs[i+1]*marauder_speed
-			moving=true
+	if self.pos and plyr.pos then
+		if flr(self.pos.x)!=flr(plyr.pos.x) then
+			if self.pos.x<plyr.pos.x then
+				self.facing=2
+				self.pos.x+=marauder_speed/2
+				moving=true
+			elseif self.pos.x>plyr.pos.x then
+				self.facing=1
+				self.pos.x-=marauder_speed/2
+				moving=true
+			end
 		end
-	end 
+
+		if flr(self.pos.y)!=flr(plyr.pos.y) then
+			if self.pos.y<plyr.pos.y then
+				self.facing=4
+				self.pos.y+=marauder_speed/2
+				moving=true
+			elseif self.pos.y>plyr.pos.y then
+				self.facing=3
+				self.pos.y-=marauder_speed/2
+				moving=true
+			end
+		end
+	end
 
 	if moving then
 		if t%6==0 then

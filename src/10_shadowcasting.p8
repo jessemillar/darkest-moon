@@ -23,7 +23,7 @@ function render_shadow_fn()
 	 if (dist<=0) return 
 	 local ds,de=s-p,e-p
 	 if (#ds>rngsq and #de>rngsq) return
-	 local horiz=wall.d.x~=0
+	 local horiz=wall.d.x!=0
 	 
 	 local cs,ce=
 	  rng/max(abs(ds.x),abs(ds.y)),

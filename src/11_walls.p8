@@ -55,8 +55,8 @@ function process_walls_with(dout,din,mask,wdir)
 	   l+=din
 	   c+=1
 	   bv=flags(l,mask)
-	  until c==16 or bv~=prv
-	  if prv~=0 then
+	  until c==16 or bv!=prv
+	  if prv!=0 then
 	   add_wall(sl,l,wdir)
 	  end
 	  sl=l
@@ -126,7 +126,7 @@ function find_wall_fronts()
   for x=0,16 do
    c=flags(v(x,y),16)+
      flags(v(x,y+1),16)
-   if c~=pc or c==16 then
+   if c!=pc or c==16 then
     if pc==32 then
      w=wallfront:new({
       mx=sx,my=y,mw=x-sx,

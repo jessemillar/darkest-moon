@@ -928,7 +928,7 @@ function _draw()
 	-- "real" polygonal shadows
 	render_wall_shadows()
 
-	debug_collisions()
+	-- debug_collisions()
 	-- show_performance()
 end
 
@@ -941,6 +941,11 @@ function _init()
 
 	plyr=player:new({
 		pos=v(22,42),
+		facing=4
+	})
+
+	mrdr=marauder:new({
+		pos=v(50,55),
 		facing=4
 	})
 
@@ -959,8 +964,6 @@ function _init()
 end
 
 function _update()
-	grid_empty=true -- reset the value
-
 	-- let all objects update
 	update_entities()
 
@@ -1034,6 +1037,61 @@ function light:apply()
 		self:extents()
 		crect(xl,yt,xr,yb,
 			light_fill)
+end
+
+marauder_speed=0.8
+
+marauder_sprites={
+	64,64,96,70
+}
+
+marauder=kind({
+	extends=entity,
+	frm=0,
+	shadow={x=0,y=0,rx=8,ry=4},
+	shoff=v(0,0),
+	cbox=make_box(-3,-6,4,1)
+})
+
+marauder_shadow_locs={
+	v(2,0),v(-2,0),v(0,0),v(0,-3)
+}
+
+function marauder:s_default(t)
+	-- moving around
+	local moving=false
+
+	for i=0,3 do  
+		if btn(i) then
+			self.facing=i+1
+			self.pos+=dirs[i+1]*marauder_speed
+			moving=true
+		end
+	end 
+
+	if moving then
+		if t%6==0 then
+			self.frm=(self.frm+1)%3
+		end
+	else
+		self.frm=0
+	end
+
+	-- update shadow position
+	set(self.shadow,marauder_shadow_locs[self.facing])
+	-- collision detection
+	collide(self,"cbox",self.hit_object)
+end
+
+function marauder:hit_object(ob)
+	return event(ob,"walked_into")
+end
+
+function marauder:render()
+	local pos=self.pos
+	local sprite=marauder_sprites[self.facing]+self.frm*2
+
+	spr(sprite,pos.x-8,pos.y-16,2,2,self.facing==1)
 end
 
 function show_performance()
@@ -1112,15 +1170,10 @@ function player:s_default(t)
 	rtcl.pos=v(reticle_left,reticle_top)
 
 	if btnp(4) then
-		if grid_empty then
-			sfx(12)
-			wheat:new({
-				pos=v(reticle_left,reticle_top)
-			})
-
-		else
-			sfx(13)
-		end
+		sfx(12)
+		wheat:new({
+			pos=v(reticle_left,reticle_top)
+		})
 	end
 end
 
@@ -1135,20 +1188,9 @@ function player:render()
 	spr(sprite,pos.x-8,pos.y-16,2,2,self.facing==1)
 end
 
-grid_empty=true
-
 reticle=kind({
-	extends=entity,
-	cbox=make_box(-4,-4,3,3)
+	extends=entity
 })
-
-function reticle:s_default(t)
-	collide(self,"cbox",self.hit_object)
-end
-
-function reticle:hit_object(ob)
-	grid_empty=false
-end
 
 function reticle:render(t)
 	local pos=self.pos

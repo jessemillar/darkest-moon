@@ -10,6 +10,11 @@ function _init()
 		facing=4
 	})
 
+	mrdr=marauder:new({
+		pos=v(50,55),
+		facing=4
+	})
+
 	rtcl=reticle:new({
 		pos=plyr.pos
 	})

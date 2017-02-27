@@ -63,15 +63,10 @@ function player:s_default(t)
 	rtcl.pos=v(reticle_left,reticle_top)
 
 	if btnp(4) then
-		if grid_empty then
-			sfx(12)
-			wheat:new({
-				pos=v(reticle_left,reticle_top)
-			})
-
-		else
-			sfx(13)
-		end
+		sfx(12)
+		wheat:new({
+			pos=v(reticle_left,reticle_top)
+		})
 	end
 end
 

@@ -190,7 +190,8 @@ end
 -- entity root type
 entity=kind({
 	t=0,
-	state="s_default"
+	state="s_default",
+	solid=true
 })
 
 -- a big bag of all entities
@@ -310,11 +311,11 @@ function do_collisions()
 		local eb=c_box(e)
 
 		for o in all(entities_with[c.p]) do
-			if o~=e then
+			if o!=e then
 				local ob=c_box(o)
 				if eb:overlaps(ob) then
 					local separate=c.cb(e,o)
-					if separate then
+					if separate and e.solid and o.solid then
 						local sepv=eb:sepv(ob)
 						e.pos+=sepv
 						eb=eb:translate(sepv)
@@ -1084,7 +1085,7 @@ function marauder:s_default(t)
 end
 
 function marauder:hit_object(ob)
-	return event(ob,"walked_into")
+	return event(ob,"marauded")
 end
 
 function marauder:render()
@@ -1201,7 +1202,8 @@ end
 wheat=kind({
 	extends=entity,
 	cbox=make_box(-4,-4,3,3),
-	growth=0
+	growth=0,
+	solid=false
 })
 
 function wheat:s_default(t)
@@ -1211,6 +1213,16 @@ function wheat:s_default(t)
 			self.growth+=1
 		end
 	end
+
+	collide(self,"cbox",self.hit_object)
+end
+
+function wheat:double_plant()
+	self.state="s_destroy"
+end
+
+function wheat:hit_object(ob)
+	return event(ob,"double_plant")
 end
 
 function wheat:walked_into(ob)
@@ -1228,6 +1240,11 @@ function wheat:render(t)
 	end
 
 	spr(128+self.growth,pos.x-4,pos.y-4+float_offset) 
+end
+
+function wheat:s_destroy()
+	sfx(13)
+	return true
 end
 
 function wheat:s_harvest()

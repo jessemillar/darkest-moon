@@ -17,11 +17,11 @@ function do_collisions()
 		local eb=c_box(e)
 
 		for o in all(entities_with[c.p]) do
-			if o~=e then
+			if o!=e then
 				local ob=c_box(o)
 				if eb:overlaps(ob) then
 					local separate=c.cb(e,o)
-					if separate then
+					if separate and e.solid and o.solid then
 						local sepv=eb:sepv(ob)
 						e.pos+=sepv
 						eb=eb:translate(sepv)

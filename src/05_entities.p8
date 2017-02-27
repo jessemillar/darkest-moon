@@ -1,7 +1,8 @@
 -- entity root type
 entity=kind({
 	t=0,
-	state="s_default"
+	state="s_default",
+	solid=true
 })
 
 -- a big bag of all entities

@@ -1,7 +1,8 @@
 wheat=kind({
 	extends=entity,
 	cbox=make_box(-4,-4,3,3),
-	growth=0
+	growth=0,
+	solid=false
 })
 
 function wheat:s_default(t)
@@ -11,6 +12,16 @@ function wheat:s_default(t)
 			self.growth+=1
 		end
 	end
+
+	collide(self,"cbox",self.hit_object)
+end
+
+function wheat:double_plant()
+	self.state="s_destroy"
+end
+
+function wheat:hit_object(ob)
+	return event(ob,"double_plant")
 end
 
 function wheat:walked_into(ob)
@@ -28,6 +39,11 @@ function wheat:render(t)
 	end
 
 	spr(128+self.growth,pos.x-4,pos.y-4+float_offset) 
+end
+
+function wheat:s_destroy()
+	sfx(13)
+	return true
 end
 
 function wheat:s_harvest()

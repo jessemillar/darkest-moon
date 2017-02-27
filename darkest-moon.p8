@@ -928,13 +928,11 @@ function _draw()
 	-- "real" polygonal shadows
 	render_wall_shadows()
 
-	-- debug_collisions()
+	debug_collisions()
 	-- show_performance()
 end
 
 function _init()
-	t=0
-
 	init_blending(6)
 	init_palettes(16)
 
@@ -942,7 +940,8 @@ function _init()
 	process_walls()
 
 	plyr=player:new({
-		pos=v(22,42),facing=4
+		pos=v(22,42),
+		facing=4
 	})
 
 	rtcl=reticle:new({
@@ -950,7 +949,8 @@ function _init()
 	})
 
 	lgt=light:new({
-		pos=plyr.pos,bri=0.85
+		pos=plyr.pos,
+		bri=0.85
 	})
 
 	chst=chest:new({
@@ -959,8 +959,11 @@ function _init()
 end
 
 function _update()
+	grid_empty=true -- reset the value
+
 	-- let all objects update
 	update_entities()
+
 	-- check for collisions
 	-- collision callbacks happen here
 	do_collisions()
@@ -1109,10 +1112,15 @@ function player:s_default(t)
 	rtcl.pos=v(reticle_left,reticle_top)
 
 	if btnp(4) then
-		sfx(12)
-		wheat:new({
-			pos=v(reticle_left,reticle_top)
-		})
+		if grid_empty then
+			sfx(12)
+			wheat:new({
+				pos=v(reticle_left,reticle_top)
+			})
+
+		else
+			sfx(13)
+		end
 	end
 end
 
@@ -1127,9 +1135,20 @@ function player:render()
 	spr(sprite,pos.x-8,pos.y-16,2,2,self.facing==1)
 end
 
+grid_empty=true
+
 reticle=kind({
-	extends=entity
+	extends=entity,
+	cbox=make_box(-4,-4,3,3)
 })
+
+function reticle:s_default(t)
+	collide(self,"cbox",self.hit_object)
+end
+
+function reticle:hit_object(ob)
+	grid_empty=false
+end
 
 function reticle:render(t)
 	local pos=self.pos
@@ -1144,32 +1163,32 @@ wheat=kind({
 })
 
 function wheat:s_default(t)
-	collide(self,"cbox",self.walked_into)
-
-	if self.t>0 and self.t%25==0 then
+	-- grow
+	if self.t>0 and self.t%25==0 then -- define the growth rate with modulus
 		if self.growth<3 then
 			self.growth+=1
 		end
-	end
-
-	if self.growth==3 then
-		self.pos.y=cos(self.t/50)/50+self.pos.y
 	end
 end
 
 function wheat:walked_into(ob)
 	if self.growth==3 then
-		self.state="s_delete"
+		self.state="s_harvest"
 	end
 end
 
 function wheat:render(t)
 	local pos=self.pos
+	local float_offset=0
 
-	spr(128+self.growth,pos.x-4,pos.y-4) 
+	if self.growth==3 then
+		float_offset=cos(self.t/50)/50
+	end
+
+	spr(128+self.growth,pos.x-4,pos.y-4+float_offset) 
 end
 
-function wheat:s_delete()
+function wheat:s_harvest()
 	sfx(11)
 	player_inventory_harvested+=1
 	printh(player_inventory_harvested)
@@ -1356,7 +1375,7 @@ __sfx__
 010100003c7343c7303c7353a000360003c000230000b00001000000002d000000000000030000000003200000000000003300000000330002f00029000220001c00000000000000000000000000000000000000
 010100000017400170001750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 010400001862430001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-010500003060330603000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+010700000c420180030c4200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 01060000247010c701000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 010300003070300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 011600003030530305303053030530305303053030500305003050030500305003050030500305003050030500305003050030500305003050030500305003050030500305003050030500305003050030500305

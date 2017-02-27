@@ -1,6 +1,4 @@
 function _init()
-	t=0
-
 	init_blending(6)
 	init_palettes(16)
 
@@ -8,7 +6,8 @@ function _init()
 	process_walls()
 
 	plyr=player:new({
-		pos=v(22,42),facing=4
+		pos=v(22,42),
+		facing=4
 	})
 
 	rtcl=reticle:new({
@@ -16,7 +15,8 @@ function _init()
 	})
 
 	lgt=light:new({
-		pos=plyr.pos,bri=0.85
+		pos=plyr.pos,
+		bri=0.85
 	})
 
 	chst=chest:new({

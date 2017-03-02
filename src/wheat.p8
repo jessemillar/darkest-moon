@@ -1,6 +1,6 @@
 wheat=kind({
 	extends=entity,
-	cbox=make_box(-4,-4,3,3),
+	cbox=make_box(-4,4,3,11),
 	growth=0,
 	solid=false
 })
@@ -38,7 +38,7 @@ function wheat:render(t)
 		float_offset=cos(self.t/50)/50
 	end
 
-	spr(128+self.growth,pos.x-4,pos.y-4+float_offset) 
+	spr(128+self.growth,pos.x-4,pos.y-4+float_offset,1,2) 
 end
 
 function wheat:s_destroy()

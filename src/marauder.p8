@@ -1,4 +1,6 @@
-marauder_speed=0.8
+marauder_speed=0.6
+marauder_move_chance=5
+marauder_chasing=false
 
 marauder_sprites={
 	64,64,96,70
@@ -20,28 +22,34 @@ function marauder:s_default(t)
 	-- moving around
 	local moving=false
 
-	if self.pos and plyr.pos then
-		if flr(self.pos.x)!=flr(plyr.pos.x) then
-			if self.pos.x<plyr.pos.x then
-				self.facing=2
-				self.pos.x+=marauder_speed/2
-				moving=true
-			elseif self.pos.x>plyr.pos.x then
-				self.facing=1
-				self.pos.x-=marauder_speed/2
-				moving=true
-			end
-		end
+	if rnd(100)<marauder_move_chance then
+		marauder_chasing=not marauder_chasing
+	end
 
-		if flr(self.pos.y)!=flr(plyr.pos.y) then
-			if self.pos.y<plyr.pos.y then
-				self.facing=4
-				self.pos.y+=marauder_speed/2
-				moving=true
-			elseif self.pos.y>plyr.pos.y then
-				self.facing=3
-				self.pos.y-=marauder_speed/2
-				moving=true
+	if marauder_chasing then
+		if self.pos and plyr.pos then
+			if flr(self.pos.x)!=flr(plyr.pos.x) then
+				if self.pos.x<plyr.pos.x then
+					self.facing=2
+					self.pos.x+=marauder_speed/2
+					moving=true
+				elseif self.pos.x>plyr.pos.x then
+					self.facing=1
+					self.pos.x-=marauder_speed/2
+					moving=true
+				end
+			end
+
+			if flr(self.pos.y)!=flr(plyr.pos.y) then
+				if self.pos.y<plyr.pos.y then
+					self.facing=4
+					self.pos.y+=marauder_speed/2
+					moving=true
+				elseif self.pos.y>plyr.pos.y then
+					self.facing=3
+					self.pos.y-=marauder_speed/2
+					moving=true
+				end
 			end
 		end
 	end

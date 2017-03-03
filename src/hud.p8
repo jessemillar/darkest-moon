@@ -1,6 +1,11 @@
 function renderHUD()
+	-- print the score
+	print_ol("score",5,5,6,0)
+	print_ol(score,30,5,2,0)
+
 	-- print the day ("level")
-	print_ol("day: "..day,5,5,2,0)
+	print_ol("day",40,5,6,0)
+	print_ol(day,57,5,2,0)
 
 	-- wheat hud sprite
 	spr(162,87,3)

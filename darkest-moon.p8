@@ -939,6 +939,7 @@ end
 
 function _init()
 	day=0 -- keep track of the "level"
+	score=0
 
 	init_blending(6)
 	init_palettes(16)
@@ -1003,8 +1004,13 @@ function chest:render(t)
 end
 
 function renderHUD()
+	-- print the score
+	print_ol("score",5,5,6,0)
+	print_ol(score,30,5,2,0)
+
 	-- print the day ("level")
-	print_ol("day: "..day,5,5,2,0)
+	print_ol("day",40,5,6,0)
+	print_ol(day,57,5,2,0)
 
 	-- wheat hud sprite
 	spr(162,87,3)
@@ -1164,7 +1170,7 @@ end
 
 player_speed=1
 player_inventory_harvested=0
-player_inventory_seeds=0
+player_inventory_seeds=5
 
 player_sprites={
 	2,2,32,8

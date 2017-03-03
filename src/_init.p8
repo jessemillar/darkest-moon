@@ -1,5 +1,6 @@
 function _init()
 	day=0 -- keep track of the "level"
+	score=0
 
 	init_blending(6)
 	init_palettes(16)

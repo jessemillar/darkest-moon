@@ -1,6 +1,6 @@
 player_speed=1
 player_inventory_harvested=0
-player_inventory_seeds=0
+player_inventory_seeds=5
 
 player_sprites={
 	2,2,32,8

@@ -78,5 +78,6 @@ function player:render()
 	local pos=self.pos
 	local sprite=player_sprites[self.facing]+self.frm*2
 
+	-- player sprite
 	spr(sprite,pos.x-8,pos.y-16,2,2,self.facing==1)
 end

@@ -32,6 +32,10 @@ function _draw()
 	-- "real" polygonal shadows
 	render_wall_shadows()
 
+	clip(0,0,128,128) 
+
+	renderHUD()
+
 	-- debug_collisions()
 	-- show_performance()
 end

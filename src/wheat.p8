@@ -49,6 +49,5 @@ end
 function wheat:s_harvest()
 	sfx(11)
 	player_inventory_harvested+=1
-	printh(player_inventory_harvested)
 	return true
 end

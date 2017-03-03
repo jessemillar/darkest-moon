@@ -63,10 +63,15 @@ function player:s_default(t)
 	rtcl.pos=v(reticle_left,reticle_top)
 
 	if btnp(4) then
-		sfx(12)
-		wheat:new({
-			pos=v(reticle_left,reticle_top-8)
-		})
+		if player_inventory_seeds>0 then
+			sfx(12)
+			player_inventory_seeds-=1
+			wheat:new({
+				pos=v(reticle_left,reticle_top-8)
+			})
+		else
+			sfx(13)
+		end
 	end
 end
 

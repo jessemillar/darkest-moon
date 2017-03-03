@@ -11,6 +11,7 @@ end
 function chest:walked_into(ob)
 	if player_inventory_harvested>0 then
 		sfx(10)
+		score+=player_inventory_harvested*10
 		player_inventory_harvested=0
 	end
 end

@@ -993,6 +993,7 @@ end
 function chest:walked_into(ob)
 	if player_inventory_harvested>0 then
 		sfx(10)
+		score+=player_inventory_harvested*10
 		player_inventory_harvested=0
 	end
 end
@@ -1009,8 +1010,8 @@ function renderHUD()
 	print_ol(score,30,5,2,0)
 
 	-- print the day ("level")
-	print_ol("day",40,5,6,0)
-	print_ol(day,57,5,2,0)
+	print_ol("day",50,5,6,0)
+	print_ol(day,67,5,2,0)
 
 	-- wheat hud sprite
 	spr(162,87,3)
@@ -1233,10 +1234,15 @@ function player:s_default(t)
 	rtcl.pos=v(reticle_left,reticle_top)
 
 	if btnp(4) then
-		sfx(12)
-		wheat:new({
-			pos=v(reticle_left,reticle_top-8)
-		})
+		if player_inventory_seeds>0 then
+			sfx(12)
+			player_inventory_seeds-=1
+			wheat:new({
+				pos=v(reticle_left,reticle_top-8)
+			})
+		else
+			sfx(13)
+		end
 	end
 end
 

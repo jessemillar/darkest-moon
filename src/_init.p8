@@ -14,7 +14,7 @@ function _init()
 	})
 
 	mrdr=marauder:new({
-		pos=v(100,100),
+		pos=v(flr(rnd(128)),150),
 		facing=4
 	})
 

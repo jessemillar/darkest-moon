@@ -85,6 +85,9 @@ function player:s_default(t)
 			lght.bri=0.05
 			player_sleeping=false
 			player_waking=true
+			mrdr.pos.x=flr(rnd(128))
+			mrdr.pos.y=150
+			self.facing=4
 		end
 
 		if player_waking then

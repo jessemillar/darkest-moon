@@ -19,53 +19,55 @@ marauder_shadow_locs={
 }
 
 function marauder:s_default(t)
-	-- moving around
-	local moving=false
+	if not player_sleeping and not player_waking then
+		-- moving around
+		local moving=false
 
-	if rnd(100)<marauder_move_chance then
-		marauder_chasing=not marauder_chasing
-	end
+		if rnd(100)<marauder_move_chance then
+			marauder_chasing=not marauder_chasing
+		end
 
-	if marauder_chasing then
-		if self.pos and plyr.pos then
-			if flr(self.pos.x)!=flr(plyr.pos.x) then
-				if self.pos.x<plyr.pos.x then
-					self.facing=2
-					self.pos.x+=marauder_speed/2
-					moving=true
-				elseif self.pos.x>plyr.pos.x then
-					self.facing=1
-					self.pos.x-=marauder_speed/2
-					moving=true
+		if marauder_chasing then
+			if self.pos and plyr.pos then
+				if flr(self.pos.x)!=flr(plyr.pos.x) then
+					if self.pos.x<plyr.pos.x then
+						self.facing=2
+						self.pos.x+=marauder_speed/2
+						moving=true
+					elseif self.pos.x>plyr.pos.x then
+						self.facing=1
+						self.pos.x-=marauder_speed/2
+						moving=true
+					end
 				end
-			end
 
-			if flr(self.pos.y)!=flr(plyr.pos.y) then
-				if self.pos.y<plyr.pos.y then
-					self.facing=4
-					self.pos.y+=marauder_speed/2
-					moving=true
-				elseif self.pos.y>plyr.pos.y then
-					self.facing=3
-					self.pos.y-=marauder_speed/2
-					moving=true
+				if flr(self.pos.y)!=flr(plyr.pos.y) then
+					if self.pos.y<plyr.pos.y then
+						self.facing=4
+						self.pos.y+=marauder_speed/2
+						moving=true
+					elseif self.pos.y>plyr.pos.y then
+						self.facing=3
+						self.pos.y-=marauder_speed/2
+						moving=true
+					end
 				end
 			end
 		end
-	end
 
-	if moving then
-		if t%6==0 then
-			self.frm=(self.frm+1)%3
+		if moving then
+			if t%6==0 then
+				self.frm=(self.frm+1)%3
+			end
+		else
+			self.frm=0
 		end
-	else
-		self.frm=0
-	end
 
-	-- update shadow position
-	set(self.shadow,marauder_shadow_locs[self.facing])
-	-- collision detection
-	collide(self,"cbox",self.hit_object)
+		-- update shadow position
+		set(self.shadow,marauder_shadow_locs[self.facing])
+		-- collision detection
+		collide(self,"cbox",self.hit_object)
+	end
 end
 
 function marauder:hit_object(ob)

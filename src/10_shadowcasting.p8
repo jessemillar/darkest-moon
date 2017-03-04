@@ -12,7 +12,7 @@ end
 
 function render_shadow_fn()
  -- remember lighting info
- local p,rng=lgt.pos:ints(),lgt:range()
+ local p,rng=lght.pos:ints(),lght:range()
  local rngsq=rng*rng
  local black=fl_color(0)
  

@@ -1,5 +1,5 @@
 function _init()
-	day=0 -- keep track of the "level"
+	day=1 -- keep track of the "level"
 	score=0
 
 	init_blending(6)
@@ -22,9 +22,13 @@ function _init()
 		pos=plyr.pos
 	})
 
-	lgt=light:new({
+	lght=light:new({
 		pos=plyr.pos,
 		bri=0.85
+	})
+
+	hs=house:new({
+		pos=v(30,12)
 	})
 
 	chst=chest:new({

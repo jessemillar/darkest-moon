@@ -6,7 +6,7 @@ function _draw()
 	palt(0,false)
 
 	-- clip to lit rectangle
-	local xl,yt,xr,yb=lgt:extents()
+	local xl,yt,xr,yb=lght:extents()
 	clip(xl,yt,xr-xl+1,yb-yt+1) 
 
 	-- store clipping coords globally to let us not draw certain objects
@@ -27,7 +27,7 @@ function _draw()
 	map(0,0,0,0,16,16,128) 
 
 	-- apply lighting to all that
-	lgt:apply() 
+	lght:apply() 
 
 	-- "real" polygonal shadows
 	render_wall_shadows()

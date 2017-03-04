@@ -654,7 +654,7 @@ function set_palette(no)
 end
 
 function dim_object(o)
-	local lcoeff=(o.pos-lgt.pos).y/25
+	local lcoeff=(o.pos-lght.pos).y/25
 
 	if lcoeff>0 then
 		local pt=mid(flr(lcoeff/0.1),0,6)
@@ -677,7 +677,7 @@ end
 
 function render_shadow_fn()
  -- remember lighting info
- local p,rng=lgt.pos:ints(),lgt:range()
+ local p,rng=lght.pos:ints(),lght:range()
  local rngsq=rng*rng
  local black=fl_color(0)
  
@@ -903,7 +903,7 @@ function _draw()
 	palt(0,false)
 
 	-- clip to lit rectangle
-	local xl,yt,xr,yb=lgt:extents()
+	local xl,yt,xr,yb=lght:extents()
 	clip(xl,yt,xr-xl+1,yb-yt+1) 
 
 	-- store clipping coords globally to let us not draw certain objects
@@ -924,7 +924,7 @@ function _draw()
 	map(0,0,0,0,16,16,128) 
 
 	-- apply lighting to all that
-	lgt:apply() 
+	lght:apply() 
 
 	-- "real" polygonal shadows
 	render_wall_shadows()
@@ -938,7 +938,7 @@ function _draw()
 end
 
 function _init()
-	day=0 -- keep track of the "level"
+	day=1 -- keep track of the "level"
 	score=0
 
 	init_blending(6)
@@ -961,9 +961,13 @@ function _init()
 		pos=plyr.pos
 	})
 
-	lgt=light:new({
+	lght=light:new({
 		pos=plyr.pos,
 		bri=0.85
+	})
+
+	hs=house:new({
+		pos=v(30,12)
 	})
 
 	chst=chest:new({
@@ -982,7 +986,6 @@ end
 
 chest=kind({
 	extends=entity,
-	shadow={x=0,y=-2,rx=8,ry=4},
 	cbox=make_box(-8,-8,7,-4)
 })
 
@@ -1002,6 +1005,25 @@ function chest:render(t)
 	local pos=self.pos
 
 	spr(160,pos.x-8,pos.y-16,2,2) 
+end
+
+house=kind({
+	extends=entity,
+	cbox=make_box(-16,-12,15,9)
+})
+
+function house:s_default(t)
+	collide(self,"cbox",self.walked_into)
+end
+
+function house:walked_into(ob)
+	player_sleeping=true
+end
+
+function house:render(t)
+	local pos=self.pos
+
+	spr(220,pos.x-16,pos.y-12,4,3) 
 end
 
 function renderHUD()
@@ -1170,6 +1192,8 @@ function show_performance()
 end
 
 player_speed=1
+player_sleeping=false
+player_waking=false
 player_inventory_harvested=0
 player_inventory_seeds=5
 
@@ -1193,55 +1217,77 @@ function player:s_default(t)
 	-- moving around
 	local moving=false
 
-	for i=0,3 do  
-		if btn(i) then
-			self.facing=i+1
-			self.pos+=dirs[i+1]*player_speed
-			moving=true
-		end
-	end 
+	if not player_sleeping and not player_waking then
+		for i=0,3 do  
+			if btn(i) then
+				self.facing=i+1
+				self.pos+=dirs[i+1]*player_speed
+				moving=true
+			end
+		end 
 
-	if moving then
-		if t%6==0 then
-			self.frm=(self.frm+1)%3
-		end
-	else
-		self.frm=0
-	end
-
-	-- update shadow position
-	set(self.shadow,player_shadow_locs[self.facing])
-	-- collision detection
-	collide(self,"cbox",self.hit_object)
-
-	-- planting wheat in a grid
-	local vertical_shift=0
-	local horizontal_shift=0
-
-	if self.facing==1 then
-		horizontal_shift=-16
-	elseif self.facing==2 then
-		horizontal_shift=16
-	elseif self.facing==3 then
-		vertical_shift=-16
-	else
-		vertical_shift=8
-	end
-
-	local reticle_left=flr(self.pos.x/8)*8+horizontal_shift+4
-	local reticle_top=flr(self.pos.y/8)*8+vertical_shift+4
-
-	rtcl.pos=v(reticle_left,reticle_top)
-
-	if btnp(4) then
-		if player_inventory_seeds>0 then
-			sfx(12)
-			player_inventory_seeds-=1
-			wheat:new({
-				pos=v(reticle_left,reticle_top-8)
-			})
+		if moving then
+			if t%6==0 then
+				self.frm=(self.frm+1)%3
+			end
 		else
-			sfx(13)
+			self.frm=0
+		end
+
+		-- update shadow position
+		set(self.shadow,player_shadow_locs[self.facing])
+		-- collision detection
+		collide(self,"cbox",self.hit_object)
+
+		-- planting wheat in a grid
+		local vertical_shift=0
+		local horizontal_shift=0
+
+		if self.facing==1 then
+			horizontal_shift=-16
+		elseif self.facing==2 then
+			horizontal_shift=16
+		elseif self.facing==3 then
+			vertical_shift=-16
+		else
+			vertical_shift=8
+		end
+
+		local reticle_left=flr(self.pos.x/8)*8+horizontal_shift+4
+		local reticle_top=flr(self.pos.y/8)*8+vertical_shift+4
+
+		rtcl.pos=v(reticle_left,reticle_top)
+
+		if btnp(4) then
+			if player_inventory_seeds>0 then
+				sfx(12)
+				player_inventory_seeds-=1
+				wheat:new({
+					pos=v(reticle_left,reticle_top-8)
+				})
+			else
+				sfx(13)
+			end
+		end
+	else
+		if player_sleeping then
+			lght.bri-=0.05
+		end
+
+		if lght.bri<=0.05 then
+			lght.bri=0.05
+			player_sleeping=false
+			player_waking=true
+		end
+
+		if player_waking then
+			lght.bri+=0.05
+		end
+
+		if lght.bri>=0.85 then
+			light.bri=0.85
+			player_waking=false
+			day+=1
 		end
 	end
 end
@@ -1456,9 +1502,9 @@ __gff__
 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 000000000000000000000000000000000000000000000000000000000000000005060000000000000000000000000000000000000000000000000000000000000000000000000f000000000000000000000000000000000000000000050404060000000000000000000000000908080a00000000000000000000000000000000
 __map__
-c6c0dcdddedfe0e0e0c3c4c5c6c0e0c6e0e0e0e0c6e0e0d6e0e0c6e0e0c0e0e0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-d6e0ecedeeefc0e0e0d3c2d5d6e0e0d6e0e0c0e0d6e0e0e0e0e0d6e0c3c4c4c4000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-e0e0fcfdfeffe0e0c0d3c2f2c4c4c5c0e0e0e0e0e0e0c0e0c0e0e0e0d3c2c2c2000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+c6c0e0e0e0e0e0e0e0c3c4c5c6c0e0c6e0e0e0e0c6e0e0d6e0e0c6e0e0c0e0e0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+d6e0e0e0e0e0c0e0e0d3c2d5d6e0e0d6e0e0c0e0d6e0e0e0e0e0d6e0c3c4c4c4000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+e0e0e0e0e0e0e0e0c0d3c2f2c4c4c5c0e0e0e0e0e0e0c0e0c0e0e0e0d3c2c2c2000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 c0e0e0e0e0c0e0c3c4f3c2c2c2c2f2c4c4c4c4c4c4c4c4c5e0e0e0e0d3c2c2c2000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 e0e0c0e0c0e0e0d3c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2d5e0e0c0e0d3c2c2c2000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 c4c4c4c4c4c4c4f3c2c2c2c2c2c2d4c2c2c2c2c2c2c2c2f2c4c4c4c4f3c2c2c2000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000

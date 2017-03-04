@@ -1,6 +1,5 @@
 chest=kind({
 	extends=entity,
-	shadow={x=0,y=-2,rx=8,ry=4},
 	cbox=make_box(-8,-8,7,-4)
 })
 

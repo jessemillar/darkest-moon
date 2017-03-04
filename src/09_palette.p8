@@ -27,7 +27,7 @@ function set_palette(no)
 end
 
 function dim_object(o)
-	local lcoeff=(o.pos-lgt.pos).y/25
+	local lcoeff=(o.pos-lght.pos).y/25
 
 	if lcoeff>0 then
 		local pt=mid(flr(lcoeff/0.1),0,6)

@@ -103,6 +103,7 @@ function player:s_default(t)
 			mrdr.pos.x=flr(rnd(128))
 			mrdr.pos.y=150
 			self.facing=4
+			set(self.shadow,player_shadow_locs[self.facing])
 			player_inventory_seeds=player_inventory_seeds_max
 
 			-- increase the marauder's speed every second day

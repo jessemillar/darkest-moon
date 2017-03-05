@@ -1035,7 +1035,11 @@ function _draw()
 	cls() -- clear the screen
 
 	if game_state==0 then
-		draw_encoded(0, 26, 128, 70, encoded_logo, 14) -- draw the title screen logo
+		draw_encoded(0, 15, 128, 70, encoded_logo, 14) -- draw the title screen logo
+
+		if t%25<18 then
+			print("press z to play", 34, 90, 6)
+		end
 	else
 		-- reset the palette
 		palt()
@@ -1123,16 +1127,22 @@ end
 function _update()
 	t=t+1 -- increment the text box timer
 
-	if #tbox_messages==0 then
-		-- let all objects update
-		update_entities()
+	if game_state==0 then 
+		if btnp(4) then
+			game_state=1
+		end
+	else
+		if #tbox_messages==0 then
+			-- let all objects update
+			update_entities()
 
-		-- check for collisions
-		-- collision callbacks happen here
-		do_collisions()
+			-- check for collisions
+			-- collision callbacks happen here
+			do_collisions()
+		end
+
+		tbox_interact()
 	end
-
-	tbox_interact()
 end
 
 chest=kind({
@@ -1460,6 +1470,7 @@ function player:s_default(t)
 			mrdr.pos.x=flr(rnd(128))
 			mrdr.pos.y=150
 			self.facing=4
+			set(self.shadow,player_shadow_locs[self.facing])
 			player_inventory_seeds=player_inventory_seeds_max
 
 			-- increase the marauder's speed every second day

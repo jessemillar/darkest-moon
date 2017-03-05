@@ -2,7 +2,11 @@ function _draw()
 	cls() -- clear the screen
 
 	if game_state==0 then
-		draw_encoded(0, 26, 128, 70, encoded_logo, 14) -- draw the title screen logo
+		draw_encoded(0, 15, 128, 70, encoded_logo, 14) -- draw the title screen logo
+
+		if t%25<18 then
+			print("press z to play", 34, 90, 6)
+		end
 	else
 		-- reset the palette
 		palt()

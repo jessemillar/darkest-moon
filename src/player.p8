@@ -39,6 +39,10 @@ function player:s_default(t)
 			if t%6==0 then
 				self.frm=(self.frm+1)%3
 			end
+
+			if t%12==0 then
+				sfx(16)
+			end
 		else
 			self.frm=0
 		end

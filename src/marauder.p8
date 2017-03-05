@@ -59,6 +59,10 @@ function marauder:s_default(t)
 			if t%6==0 then
 				self.frm=(self.frm+1)%3
 			end
+
+			if t%12==0 then
+				sfx(16)
+			end
 		else
 			self.frm=0
 		end
@@ -76,6 +80,8 @@ end
 
 function marauder:walked_into(ob)
 	if ob=="player" then
+		music(-1) -- stop music
+		sfx(17)
 		tbox("", "you were killed by a marauder. game over.")
 		game_over=true
 	end

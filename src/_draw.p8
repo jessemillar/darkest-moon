@@ -2,11 +2,14 @@ function _draw()
 	cls() -- clear the screen
 
 	if game_state==0 then
-		draw_encoded(0, 15, 128, 70, encoded_logo, 14) -- draw the title screen logo
+		draw_encoded(0, 5, 128, 70, encoded_logo, 14) -- draw the title screen logo
 
 		if t%25<18 then
-			print("press z to play", 34, 90, 6)
+			print("press z to play", 34, 75, 6)
 		end
+
+		print("copyright 2016", 36, 92, 5)
+		print("jesse millar", 40, 100, 5)
 	elseif game_state==1 then
 		-- reset the palette
 		palt()

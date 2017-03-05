@@ -9,6 +9,8 @@ function _update()
 	elseif game_state==1 then
 		if #tbox_messages==0 then
 			if game_over then
+				sfx(-1) -- stop sfx
+				music(0)
 				score=0
 				day=1
 				plyr.pos.x=22

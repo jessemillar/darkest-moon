@@ -22,7 +22,7 @@ function chest:walked_into(ob)
 			player_harvesting_streak=0
 		end
 
-		sfx(10)
+		sfx(14)
 		score+=player_inventory_harvested*10+50*player_harvesting_streak
 		player_inventory_harvested=0
 	end

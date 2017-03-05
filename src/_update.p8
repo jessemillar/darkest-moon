@@ -3,6 +3,7 @@ function _update()
 
 	if game_state==0 then 
 		if btnp(4) then
+			sfx(10)
 			game_state=1
 		end
 	elseif game_state==1 then

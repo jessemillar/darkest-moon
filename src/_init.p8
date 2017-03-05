@@ -29,7 +29,7 @@ function _init()
 		bri=0.85
 	})
 
-	hs=house:new({
+	dr=door:new({
 		pos=v(30,12)
 	})
 

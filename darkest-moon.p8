@@ -969,10 +969,10 @@ end
 -- draw the text boxes (if any)
 function tbox_draw()
 	if #tbox_messages>0 then -- only draw if there are messages
-		rectfill(3, 103, 124, 123, 7) -- draw border rectangle
-		rectfill(5, 106, 122, 121, 1) -- draw fill rectangle
-		line(5, 105, 122, 105, 6) -- draw top border shadow
-		line(3, 124, 124, 124, 6) -- draw bottom border shadow
+		rectfill(3, 103, 124, 123, 13) -- draw border rectangle
+		rectfill(5, 106, 122, 121, 2) -- draw fill rectangle
+		line(5, 105, 122, 105, 1) -- draw top border shadow
+		line(3, 124, 124, 124, 1) -- draw bottom border shadow
 
 		-- draw the speaker portrait
 		if #tbox_messages[1].speaker>0 then
@@ -1117,16 +1117,21 @@ chest=kind({
 })
 
 function chest:walked_into(ob)
-	if player_inventory_harvested>0 then
+	if ob=="player" and player_inventory_harvested>0 then
 		if player_inventory_harvested==player_inventory_seeds_max and player_inventory_seeds==0 then
 			player_harvesting_streak+=1
 
-			if player_harvesting_streak%2 then
+			tbox("", "perfect streak up! score bonus set to "..50*player_harvesting_streak.."!")
+
+			if player_harvesting_streak%2==0 then
 				player_inventory_seeds_max+=1
+				tbox("", "seed count increased by one!")
+			end
+		else
+			if player_harvesting_streak>0 then
+				tbox("", "perfect streak ruined...")
 			end
 
-			tbox("", "streak up!")
-		else
 			player_harvesting_streak=0
 		end
 
@@ -1302,6 +1307,12 @@ function marauder:hit_object(ob)
 	return event(ob,"walked_into","marauder")
 end
 
+function marauder:walked_into(ob)
+	if ob=="player" then
+		tbox("", "you were killed by a marauder. game over.")
+	end
+end
+
 function marauder:render()
 	local pos=self.pos
 	local sprite=marauder_sprites[self.facing]+self.frm*2
@@ -1426,6 +1437,16 @@ function player:s_default(t)
 			mrdr.pos.y=150
 			self.facing=4
 			player_inventory_seeds=player_inventory_seeds_max
+
+			-- increase the marauder's speed every second day
+			if day%2==0 then
+				marauder_speed+=0.1
+			end
+
+			-- increase the marauder's move chance every third day
+			if day%3==0 then
+				marauder_move_chance+=1
+			end
 		end
 
 		if player_waking then
@@ -1462,7 +1483,7 @@ function reticle:render(t)
 	spr(143,pos.x-4,pos.y-4) 
 end
 
-wheat_growth_rate=25
+wheat_growth_rate=20
 
 wheat=kind({
 	extends=entity,

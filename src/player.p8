@@ -104,6 +104,16 @@ function player:s_default(t)
 			mrdr.pos.y=150
 			self.facing=4
 			player_inventory_seeds=player_inventory_seeds_max
+
+			-- increase the marauder's speed every second day
+			if day%2==0 then
+				marauder_speed+=0.1
+			end
+
+			-- increase the marauder's move chance every third day
+			if day%3==0 then
+				marauder_move_chance+=1
+			end
 		end
 
 		if player_waking then

@@ -1,4 +1,4 @@
-wheat_growth_rate=25
+wheat_growth_rate=20
 
 wheat=kind({
 	extends=entity,

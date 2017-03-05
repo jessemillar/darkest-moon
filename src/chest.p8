@@ -4,16 +4,21 @@ chest=kind({
 })
 
 function chest:walked_into(ob)
-	if player_inventory_harvested>0 then
+	if ob=="player" and player_inventory_harvested>0 then
 		if player_inventory_harvested==player_inventory_seeds_max and player_inventory_seeds==0 then
 			player_harvesting_streak+=1
 
-			if player_harvesting_streak%2 then
+			tbox("", "perfect streak up! score bonus set to "..50*player_harvesting_streak.."!")
+
+			if player_harvesting_streak%2==0 then
 				player_inventory_seeds_max+=1
+				tbox("", "seed count increased by one!")
+			end
+		else
+			if player_harvesting_streak>0 then
+				tbox("", "perfect streak ruined...")
 			end
 
-			tbox("", "streak up!")
-		else
 			player_harvesting_streak=0
 		end
 

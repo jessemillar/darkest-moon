@@ -72,10 +72,10 @@ end
 -- draw the text boxes (if any)
 function tbox_draw()
 	if #tbox_messages>0 then -- only draw if there are messages
-		rectfill(3, 103, 124, 123, 7) -- draw border rectangle
-		rectfill(5, 106, 122, 121, 1) -- draw fill rectangle
-		line(5, 105, 122, 105, 6) -- draw top border shadow
-		line(3, 124, 124, 124, 6) -- draw bottom border shadow
+		rectfill(3, 103, 124, 123, 13) -- draw border rectangle
+		rectfill(5, 106, 122, 121, 2) -- draw fill rectangle
+		line(5, 105, 122, 105, 1) -- draw top border shadow
+		line(3, 124, 124, 124, 1) -- draw bottom border shadow
 
 		-- draw the speaker portrait
 		if #tbox_messages[1].speaker>0 then

@@ -74,6 +74,12 @@ function marauder:hit_object(ob)
 	return event(ob,"walked_into","marauder")
 end
 
+function marauder:walked_into(ob)
+	if ob=="player" then
+		tbox("", "you were killed by a marauder. game over.")
+	end
+end
+
 function marauder:render()
 	local pos=self.pos
 	local sprite=marauder_sprites[self.facing]+self.frm*2

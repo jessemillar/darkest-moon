@@ -35,6 +35,7 @@ function _draw()
 	clip(0,0,128,128) 
 
 	renderHUD()
+	tbox_draw() -- draw the message boxes (if any)
 
 	-- debug_collisions()
 	-- show_performance()

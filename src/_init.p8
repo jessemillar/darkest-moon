@@ -1,4 +1,6 @@
 function _init()
+	t=0 -- the text box timer
+	tbox_messages={} -- keep track of text boxes and their line overflows
 	day=1 -- keep track of the "level"
 	score=0
 

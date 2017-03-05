@@ -895,6 +895,124 @@ function find_wall_fronts()
  end
 end
 
+function tbox(speaker, message) -- add a new text box
+	local linebreak=1 -- keeps track of the last linebreak position
+
+	if #tbox_messages>0 and #tbox_messages%2==1 then -- add an empty line for a "new" dialogue box if a previous message exists in the queue
+		tbox_line(speaker, "")
+	end
+
+	for i=0,flr(#message/26) do -- search through the message and break it into words
+		local line=sub(message, linebreak, linebreak+26) -- lines are 26 characters but grab 26 to do a lookahead check
+
+		if #line==27 and #message>linebreak+26 then -- if we're not near the end of the message
+			for j=#line,0,-1 do -- look backward for the first whitespace character to determine the linebreak
+				if sub(line,j,j)==" " then
+					local lookahead=0
+
+					if j==#line then -- if the line ends perfectly at the end of a word...
+						lookahead=1
+					end
+
+					tbox_line(speaker, sub(line, 0, j+lookahead)) -- add the word to the array
+					linebreak+=j
+					break
+				end
+			end
+		else
+			tbox_line(speaker, line) -- add the rest of the message to the text boxes array
+			break -- only add the message once
+		end
+	end
+end
+
+-- a utility function for easily adding a line to the messages array
+function tbox_line(speaker, line)
+	local line={speaker=speaker, line=line, animation=0}
+	add(tbox_messages, line)
+end
+
+-- check for button presses so we can clear text box messages
+function tbox_interact()
+	if btnp(4) then
+		if #tbox_messages>1 then
+			if tbox_messages[2].animation==#tbox_messages[2].line then
+				tbox_dismiss()
+			end
+		elseif #tbox_messages>0 then
+			if tbox_messages[1].animation==#tbox_messages[1].line then
+				tbox_dismiss()
+			end
+		end
+	end
+end
+
+function tbox_dismiss()
+	sfx(10) -- play a sound effect
+
+	if #tbox_messages>1 then -- delete two lines if there are two
+		del(tbox_messages, tbox_messages[1])
+	end
+
+	del(tbox_messages, tbox_messages[1])
+end
+
+-- check if a text box is currently visible (useful if the dialogue clear button is used for other actions as well)
+function tbox_active()
+	if #tbox_messages>0 then
+		return true
+	end
+
+	return false
+end
+
+-- draw the text boxes (if any)
+function tbox_draw()
+	if #tbox_messages>0 then -- only draw if there are messages
+		rectfill(3, 103, 124, 123, 7) -- draw border rectangle
+		rectfill(5, 106, 122, 121, 1) -- draw fill rectangle
+		line(5, 105, 122, 105, 6) -- draw top border shadow
+		line(3, 124, 124, 124, 6) -- draw bottom border shadow
+
+		-- draw the speaker portrait
+		if #tbox_messages[1].speaker>0 then
+			local speaker_width=#tbox_messages[1].speaker*4
+
+			-- limit the width of the speaker box
+			if speaker_width>115 then
+				speaker_width=115
+			end
+
+			rectfill(3, 96, speaker_width+9, 102, 7) -- draw border rectangle
+			rectfill(5, 99, speaker_width+7, 105, 1) -- draw fill rectangle
+			line(5, 98, speaker_width+7, 98, 6) -- draw top border shadow
+
+			print(sub(tbox_messages[1].speaker, 0, 28), 7, 101, 7)
+		end
+
+		-- print the message
+		if tbox_messages[1].animation<#tbox_messages[1].line then
+			sfx(15)
+			tbox_messages[1].animation+=1
+		elseif #tbox_messages>1 and tbox_messages[2].animation<#tbox_messages[2].line then
+			sfx(15)
+			tbox_messages[2].animation+=1
+		end
+
+		print(sub(tbox_messages[1].line, 0, tbox_messages[1].animation), 7, 108, 7)
+		if #tbox_messages>1 then -- only draw a second line if one exist
+			print(sub(tbox_messages[2].line, 0, tbox_messages[2].animation), 7, 115, 7)
+		end
+
+		-- draw and animate the arrow
+		if t%10<5 then
+			spr(63, 116, 116)
+		else
+			spr(63, 116, 117)
+		end
+	end
+end
+
 function _draw()
 	cls() -- clear the screen
 	
@@ -932,12 +1050,15 @@ function _draw()
 	clip(0,0,128,128) 
 
 	renderHUD()
+	tbox_draw() -- draw the message boxes (if any)
 
 	-- debug_collisions()
 	-- show_performance()
 end
 
 function _init()
+	t=0 -- the text box timer
+	tbox_messages={} -- keep track of text boxes and their line overflows
 	day=1 -- keep track of the "level"
 	score=0
 
@@ -976,12 +1097,18 @@ function _init()
 end
 
 function _update()
-	-- let all objects update
-	update_entities()
+	t=t+1 -- increment the text box timer
 
-	-- check for collisions
-	-- collision callbacks happen here
-	do_collisions()
+	if #tbox_messages==0 then
+		-- let all objects update
+		update_entities()
+
+		-- check for collisions
+		-- collision callbacks happen here
+		do_collisions()
+	end
+
+	tbox_interact()
 end
 
 chest=kind({
@@ -995,8 +1122,20 @@ end
 
 function chest:walked_into(ob)
 	if player_inventory_harvested>0 then
+		if player_inventory_harvested==player_inventory_seeds_max and player_inventory_seeds==0 then
+			player_harvesting_streak+=1
+
+			if player_harvesting_streak%2 then
+				player_inventory_seeds_max+=1
+			end
+
+			tbox("", "streak up!")
+		else
+			player_harvesting_streak=0
+		end
+
 		sfx(10)
-		score+=player_inventory_harvested*10
+		score+=player_inventory_harvested*10+50*player_harvesting_streak
 		player_inventory_harvested=0
 	end
 end
@@ -1197,7 +1336,9 @@ player_speed=1
 player_sleeping=false
 player_waking=false
 player_inventory_harvested=0
-player_inventory_seeds=5
+player_inventory_seeds_max=3
+player_inventory_seeds=player_inventory_seeds_max
+player_harvesting_streak=0
 
 player_sprites={
 	2,2,32,8
@@ -1234,6 +1375,19 @@ function player:s_default(t)
 			end
 		else
 			self.frm=0
+		end
+
+		-- constrain the player to the screen
+		if self.pos.x<0 then
+			self.pos.x=0
+		elseif self.pos.x>128 then
+			self.pos.x=128
+		end
+
+		if self.pos.y<0 then
+			self.pos.y=0
+		elseif self.pos.y>128 then
+			self.pos.y=128
 		end
 
 		-- update shadow position
@@ -1283,6 +1437,7 @@ function player:s_default(t)
 			mrdr.pos.x=flr(rnd(128))
 			mrdr.pos.y=150
 			self.facing=4
+			player_inventory_seeds=player_inventory_seeds_max
 		end
 
 		if player_waking then
@@ -1319,6 +1474,8 @@ function reticle:render(t)
 	spr(143,pos.x-4,pos.y-4) 
 end
 
+wheat_growth_rate=35
+
 wheat=kind({
 	extends=entity,
 	cbox=make_box(-4,4,3,11),
@@ -1328,10 +1485,14 @@ wheat=kind({
 
 function wheat:s_default(t)
 	-- grow
-	if self.t>0 and self.t%25==0 then -- define the growth rate with modulus
+	if self.t>0 and self.t%wheat_growth_rate==0 then -- define the growth rate with modulus
 		if self.growth<3 then
 			self.growth+=1
 		end
+	end
+
+	if player_sleeping or player_waking then
+		self.state="s_destroy"
 	end
 
 	collide(self,"cbox",self.hit_object)
@@ -1398,14 +1559,14 @@ ee0242222111110eee0242222111110eee0242222111110e00000000000000000000000000000000
 ee0444222211110eee0444222211110eee0444222211110e00000000000000000000000000000000000000000000000000000000000000000000000000000000
 ee0444422211110eee0444422211110eee0444422211110e00000000000000000000000000000000000000000000000000000000000000000000000000000000
 eee04442222110eeeee04442222110eeeee04442222110ee00000000000000000000000000000000000000000000000000000000000000000000000000000000
-eee02444222110eeeee02444222110eeeee02444222110ee00000000000000000000000000000000000000000000000000000000000000000000000000000000
-eee0942252220eeeeee094225222210eeee0942252220eee00000000000000000000000000000000000000000000000000000000000000000000000000000000
-eee0c2d5555240eeeee0c2d555521190eee0c2d5555240ee00000000000000000000000000000000000000000000000000000000000000000000000000000000
-eee0c994444450eeeee0c99444445990eee0c994444450ee00000000000000000000000000000000000000000000000000000000000000000000000000000000
-ee0cdd555555550eeee0ddd55555500eeee0ddd5555550ee00000000000000000000000000000000000000000000000000000000000000000000000000000000
-ee0dddd55555550eeeee022255000eeeeeee000552220eee00000000000000000000000000000000000000000000000000000000000000000000000000000000
-eee02220002220eeeeee022200eeeeeeeeeeeee002220eee00000000000000000000000000000000000000000000000000000000000000000000000000000000
-eeee000eee000eeeeeeee000eeeeeeeeeeeeeeeee000eeee00000000000000000000000000000000000000000000000000000000000000000000000000000000
+eee02444222110eeeee02444222110eeeee02444222110ee00000000000000000000000000000000000000000000000000000000000000000000000077777eee
+eee0942252220eeeeee094225222210eeee0942252220eee000000000000000000000000000000000000000000000000000000000000000000000000e777eeee
+eee0c2d5555240eeeee0c2d555521190eee0c2d5555240ee000000000000000000000000000000000000000000000000000000000000000000000000ee7eeeee
+eee0c994444450eeeee0c99444445990eee0c994444450ee000000000000000000000000000000000000000000000000000000000000000000000000eeeeeeee
+ee0cdd555555550eeee0ddd55555500eeee0ddd5555550ee000000000000000000000000000000000000000000000000000000000000000000000000eeeeeeee
+ee0dddd55555550eeeee022255000eeeeeee000552220eee000000000000000000000000000000000000000000000000000000000000000000000000eeeeeeee
+eee02220002220eeeeee022200eeeeeeeeeeeee002220eee000000000000000000000000000000000000000000000000000000000000000000000000eeeeeeee
+eeee000eee000eeeeeeee000eeeeeeeeeeeeeeeee000eeee000000000000000000000000000000000000000000000000000000000000000000000000eeeeeeee
 eeeeee0000eeeeeeeeeeee0000eeeeeeeeeeee0000eeeeeeeeeeee00000eeeeeeeeeee00000eeeeeeeeeee00000eeeee00000000000000000000000000000000
 eeee00222200eeeeeeee00222200eeeeeeee00222200eeeeeeee002222200eeeeeee002222200eeeeeee002222200eee00000000000000000000000000000000
 eee0222444220eeeeee0222444220eeeeee0222444220eeeeee02224442220eeeee02224442220eeeee02224442220ee00000000000000000000000000000000
@@ -1441,17 +1602,17 @@ eeee000eee000eeeeeeee000eeeeeeeeeeeeeeeee000eeee00000000000000000000000000000000
 eeeeeeeeeeeeeeeee0eeee0eeeeeeeee000000000000000000000000000000000000000000000000000000000000000000000000000000000000000099eeee99
 eeeeeeeeeeeeeeee0a0ee090eeeeeeee00000000000000000000000000000000000000000000000000000000000000000000000000000000000000009eeeeee9
 eeeeeeeeeeeeeeee0aa00990eeeeeeee0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeeeee
-eeeeeeeeeeeeeeee0aa00a90eeee0eee0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeeeee
-eeeeeeeeeeeeee0e0a099aa0e0e0a00e0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeeeee
-eeeeeeeeeeeee0900a099aa0090a90900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeeeee
-eeeeeeeee0eee0900aa90a90099aaa0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000009eeeeee9
-eeeeeeee0a0ee0900aa90a90e0aa9aa0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000099eeee99
-e00eeeee0a000a900aa90a90e0aa9a90000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-0ff0ee0e0a090a900aa90a90ee0a9a0e000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-0f0ee0f00a090a0e0aa90a0eee0240ee000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+eeeeeeeeeeeeeeee0aa00a00eeee0eee0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeeeee
+eeeeeeeeeeeeee0e0a090aa0e0e0a00e0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeeeee
+eeeeeeeeeeeee0900a090aa0090a90900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeeeee
+eeeeeeeee0eee09000a09a90099aaa0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000009eeeeee9
+eeeeeeee0a0ee09009aa0a90e0aa9aa0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000099eeee99
+e00eeeee0a000a9009aa0a90e0aa9a90000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+0ff0ee0e0a090a9009a00a90ee0a9a0e000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+0f0ee0f00a090a0e00a90a0eee0240ee000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 e0ee0ff0e009f00ee0a9000ee02240ee000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 eee0e00e09a90a9009a90a90ee0a0eee000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-ee0f0eee09a00a9009a00a90e0aa90ee000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+ee0f0eee09a00a9009a90a90e0aa90ee000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 e0ff0eeee0a00a0ee0a00a0e0909a0ee000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 ee00eeeeee0ee0eeee0ee0eee0e00eee000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 eeeeeeeeeeeeeeeeee00e00e00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000

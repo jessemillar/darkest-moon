@@ -1,3 +1,5 @@
+wheat_growth_rate=35
+
 wheat=kind({
 	extends=entity,
 	cbox=make_box(-4,4,3,11),
@@ -7,10 +9,14 @@ wheat=kind({
 
 function wheat:s_default(t)
 	-- grow
-	if self.t>0 and self.t%25==0 then -- define the growth rate with modulus
+	if self.t>0 and self.t%wheat_growth_rate==0 then -- define the growth rate with modulus
 		if self.growth<3 then
 			self.growth+=1
 		end
+	end
+
+	if player_sleeping or player_waking then
+		self.state="s_destroy"
 	end
 
 	collide(self,"cbox",self.hit_object)

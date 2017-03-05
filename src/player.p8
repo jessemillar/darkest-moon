@@ -2,7 +2,9 @@ player_speed=1
 player_sleeping=false
 player_waking=false
 player_inventory_harvested=0
-player_inventory_seeds=5
+player_inventory_seeds_max=3
+player_inventory_seeds=player_inventory_seeds_max
+player_harvesting_streak=0
 
 player_sprites={
 	2,2,32,8
@@ -39,6 +41,19 @@ function player:s_default(t)
 			end
 		else
 			self.frm=0
+		end
+
+		-- constrain the player to the screen
+		if self.pos.x<0 then
+			self.pos.x=0
+		elseif self.pos.x>128 then
+			self.pos.x=128
+		end
+
+		if self.pos.y<0 then
+			self.pos.y=0
+		elseif self.pos.y>128 then
+			self.pos.y=128
 		end
 
 		-- update shadow position
@@ -88,6 +103,7 @@ function player:s_default(t)
 			mrdr.pos.x=flr(rnd(128))
 			mrdr.pos.y=150
 			self.facing=4
+			player_inventory_seeds=player_inventory_seeds_max
 		end
 
 		if player_waking then

@@ -9,8 +9,20 @@ end
 
 function chest:walked_into(ob)
 	if player_inventory_harvested>0 then
+		if player_inventory_harvested==player_inventory_seeds_max and player_inventory_seeds==0 then
+			player_harvesting_streak+=1
+
+			if player_harvesting_streak%2 then
+				player_inventory_seeds_max+=1
+			end
+
+			tbox("", "streak up!")
+		else
+			player_harvesting_streak=0
+		end
+
 		sfx(10)
-		score+=player_inventory_harvested*10
+		score+=player_inventory_harvested*10+50*player_harvesting_streak
 		player_inventory_harvested=0
 	end
 end

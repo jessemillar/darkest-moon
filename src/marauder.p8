@@ -77,6 +77,7 @@ end
 function marauder:walked_into(ob)
 	if ob=="player" then
 		tbox("", "you were killed by a marauder. game over.")
+		game_over=true
 	end
 end
 

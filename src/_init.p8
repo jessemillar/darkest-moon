@@ -1,8 +1,9 @@
 function _init()
 	t=0 -- the text box timer
-	game_state=0 -- start on the title screen
 	tbox_messages={} -- keep track of text boxes and their line overflows
 	day=1 -- keep track of the "level"
+	game_state=0 -- start on the title screen
+	game_over=false
 	score=0
 	music(0)
 

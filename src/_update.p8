@@ -5,8 +5,27 @@ function _update()
 		if btnp(4) then
 			game_state=1
 		end
-	else
+	elseif game_state==1 then
 		if #tbox_messages==0 then
+			if game_over then
+				score=0
+				day=1
+				plyr.pos.x=22
+				plyr.pos.y=42
+				plyr.facing=4
+				mrdr.pos.x=flr(rnd(128))
+				mrdr.pos.y=150
+				player_sleeping=false
+				player_waking=false
+				player_inventory_seeds_max=3
+				player_inventory_harvested=0
+				player_inventory_seeds=player_inventory_seeds_max
+				player_harvesting_streak=0
+				t=0
+				game_over=false
+				game_state=0
+			end
+
 			-- let all objects update
 			update_entities()
 

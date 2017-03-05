@@ -7,7 +7,7 @@ function _draw()
 		if t%25<18 then
 			print("press z to play", 34, 90, 6)
 		end
-	else
+	elseif game_state==1 then
 		-- reset the palette
 		palt()
 		palt(0,false)

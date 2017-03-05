@@ -119,7 +119,7 @@ function player:s_default(t)
 end
 
 function player:hit_object(ob)
-	return event(ob,"walked_into")
+	return event(ob,"walked_into","player")
 end
 
 function player:render()

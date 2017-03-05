@@ -34,6 +34,6 @@ function _init()
 	})
 
 	chst=chest:new({
-		pos=v(61,20)
+		pos=v(115,125)
 	})
 end

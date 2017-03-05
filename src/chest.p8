@@ -3,10 +3,6 @@ chest=kind({
 	cbox=make_box(-8,-8,7,-4)
 })
 
-function chest:s_default(t)
-	collide(self,"cbox",self.walked_into)
-end
-
 function chest:walked_into(ob)
 	if player_inventory_harvested>0 then
 		if player_inventory_harvested==player_inventory_seeds_max and player_inventory_seeds==0 then

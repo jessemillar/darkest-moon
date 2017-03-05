@@ -1,4 +1,4 @@
-wheat_growth_rate=35
+wheat_growth_rate=25
 
 wheat=kind({
 	extends=entity,
@@ -32,7 +32,11 @@ end
 
 function wheat:walked_into(ob)
 	if self.growth==3 then
-		self.state="s_harvest"
+		if ob=="player" then
+			self.state="s_harvest"
+		else
+			self.state="s_destroy"
+		end
 	end
 end
 

@@ -71,7 +71,7 @@ function marauder:s_default(t)
 end
 
 function marauder:hit_object(ob)
-	return event(ob,"marauded")
+	return event(ob,"walked_into","marauder")
 end
 
 function marauder:render()

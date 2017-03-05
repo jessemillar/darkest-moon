@@ -1,42 +1,46 @@
 function _draw()
 	cls() -- clear the screen
-	
-	-- reset the palette
-	palt()
-	palt(0,false)
 
-	-- clip to lit rectangle
-	local xl,yt,xr,yb=lght:extents()
-	clip(xl,yt,xr-xl+1,yb-yt+1) 
+	if game_state==0 then
+		draw_encoded(0, 26, 128, 70, encoded_logo, 14) -- draw the title screen logo
+	else
+		-- reset the palette
+		palt()
+		palt(0,false)
 
-	-- store clipping coords globally to let us not draw certain objects
-	clipbox=make_box(
-		xl-8,yt,xr+8,yb+24
-	)
+		-- clip to lit rectangle
+		local xl,yt,xr,yb=lght:extents()
+		clip(xl,yt,xr-xl+1,yb-yt+1) 
 
-	-- background from level map
-	map(0,0,0,0,16,16) 
+		-- store clipping coords globally to let us not draw certain objects
+		clipbox=make_box(
+			xl-8,yt,xr+8,yb+24
+		)
 
-	-- under-entity "blob" shadows
-	render_blob_shadows() 
+		-- background from level map
+		map(0,0,0,0,16,16) 
 
-	-- entities themselves
-	render_entities()
+		-- under-entity "blob" shadows
+		render_blob_shadows() 
 
-	-- "foreground" layer of level (parts that need to be on top of entities)
-	map(0,0,0,0,16,16,128) 
+		-- entities themselves
+		render_entities()
 
-	-- apply lighting to all that
-	lght:apply() 
+		-- "foreground" layer of level (parts that need to be on top of entities)
+		map(0,0,0,0,16,16,128) 
 
-	-- "real" polygonal shadows
-	render_wall_shadows()
+		-- apply lighting to all that
+		lght:apply() 
 
-	clip(0,0,128,128) 
+		-- "real" polygonal shadows
+		render_wall_shadows()
 
-	renderHUD()
-	tbox_draw() -- draw the message boxes (if any)
+		clip(0,0,128,128) 
 
-	-- debug_collisions()
-	-- show_performance()
+		renderHUD()
+		tbox_draw() -- draw the message boxes (if any)
+
+		-- debug_collisions()
+		-- show_performance()
+	end
 end

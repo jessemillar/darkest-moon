@@ -5,5 +5,7 @@ reticle=kind({
 function reticle:render(t)
 	local pos=self.pos
 
-	spr(143,pos.x-4,pos.y-4) 
+	if fget(mget(pos.x/8,pos.y/8))==64 then
+		spr(143,pos.x-4,pos.y-4) 
+	end
 end

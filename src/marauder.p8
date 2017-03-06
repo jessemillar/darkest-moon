@@ -56,11 +56,13 @@ function marauder:s_default(t)
 		end
 
 		if moving then
-			if t%6==0 then
+			local animate_speed=13-flr(marauder_speed)
+
+			if t%flr(animate_speed/2)==0 then
 				self.frm=(self.frm+1)%3
 			end
 
-			if t%12==0 then
+			if t%animate_speed==0 then
 				sfx(16)
 			end
 		else

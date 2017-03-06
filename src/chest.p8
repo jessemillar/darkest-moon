@@ -8,7 +8,7 @@ function chest:walked_into(ob)
 		if player_inventory_harvested==player_inventory_seeds_max and player_inventory_seeds==0 then
 			player_harvesting_streak+=1
 
-			tbox("", "perfect streak up! score bonus set to "..50*player_harvesting_streak.."!")
+			tbox("", "perfect streak up! "..50*player_harvesting_streak.." point bonus!")
 
 			if player_harvesting_streak%2==0 then
 				player_inventory_seeds_max+=1

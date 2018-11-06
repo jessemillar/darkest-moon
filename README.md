@@ -1,16 +1,5 @@
-## Roadmap
-- [ ] Plant crops
-- [ ] Water crops
-- [ ] Fend off invaders
-- [ ] Energy meter
-- [ ] Sell crops for small amounts of money
-- [ ] Purchase seeds
+## Overview
+Darkest Moon is an arcade-style game where the goal is to get the highest score possible before inevitably succumbing to the relentless progression of the game. The player controls a nameless farmer in the Dark Ages whose only goal in life is to plant and harvest wheat in order to survive and make it to the next day. An average play session lasts between five and fifteen minutes before the marauder becomes too fast and overtakes the player.
 
-## Research
-"Common crops produced in the Middle Ages included wheat, beans, barley, peas and oats. Most farmers had a spring and a fall crop. The spring crop often produced barley and beans while the fall crop produced wheat and rye. The wheat and rye were used for bread or sold to make money."
-
-Farming was slow and clumsy. Grain was cut with a sickle, and grass was mown with a scythe. It took five men a day to reap and bind the harvest of two acres.
-
-http://www.lordsandladies.org/farming-middle-ages.htm
-
-https://www.google.com/search?q=middle+ages+housing&source=lnms&tbm=isch&sa=X&ved=0ahUKEwir45G0sYfSAhWhrVQKHb3cC-IQ_AUICCgB&biw=1428&bih=778#imgrc=0xcO5xV-Ap3LEM:
+## Acknowledgments
+- Lighting and object-oriented code modified from [Jakub Wasilewski's](https://www.patreon.com/krajzeg) [Dank Tombs Tech Demo](https://www.lexaloffle.com/bbs/?tid=28785)

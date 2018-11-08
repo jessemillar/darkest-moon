@@ -8,14 +8,16 @@
 <STYLE TYPE="text/css">
 <!--
 
-canvas#canvas { width: 512px; height: 512px; }
+canvas#canvas { width: 100%; height: auto; }
+
+body{padding:0;margin:0}
 
 .pico8_el {
 	float:left;
 	width:92px;
 	display:inline-block;
-  	margin: 1px;
-	padding: 4px;
+  	margin: 0px;
+	padding: 0px;
 	text-align: center;
 	color:#fff;
 	background-color:#777;
@@ -54,9 +56,7 @@ canvas{
 
 <body bgcolor=#000000>
 
-	<br><br><br>
-
-	<center><div style="width:512px;">
+	<center><div style="width:100%;">
 
 	<canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
 
@@ -84,7 +84,7 @@ canvas{
 		*/
 	</script>
 
-	<script async type="text/javascript" src="darkest-moon.js"></script>
+	<script async type="text/javascript" src="party-pongs.js"></script>
 
 	<script>
 		// key blocker. prevent cursor keys from scrolling page while playing cart.
@@ -105,6 +105,7 @@ canvas{
 
 	</script>
 
+	<!--
 	<br>
 
 	<div class=pico8_el onclick="Module.pico8Reset();">
@@ -132,6 +133,7 @@ canvas{
 	Carts</a></div>
 
 	<br>
+	-->
 
 	</div></center>
 	<br><br>

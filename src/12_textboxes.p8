@@ -37,7 +37,7 @@ end
 
 -- check for button presses so we can clear text box messages
 function tbox_interact()
-	if btnp(4) then
+	if btnp(5) then
 		if #tbox_messages>1 then
 			if tbox_messages[2].animation==#tbox_messages[2].line then
 				tbox_dismiss()

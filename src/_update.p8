@@ -1,8 +1,8 @@
 function _update()
 	t=t+1 -- increment the text box timer
 
-	if game_state<2 then 
-		if btnp(4) then
+	if game_state<2 then
+		if btnp(5) then
 			sfx(10)
 			game_state+=1
 		end

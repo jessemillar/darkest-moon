@@ -934,7 +934,7 @@ end
 
 -- check for button presses so we can clear text box messages
 function tbox_interact()
-	if btnp(4) then
+	if btnp(5) then
 		if #tbox_messages>1 then
 			if tbox_messages[2].animation==#tbox_messages[2].line then
 				tbox_dismiss()
@@ -1038,7 +1038,7 @@ function _draw()
 		draw_encoded(15, 20, 97, 50, encoded_logo, 14) -- draw the title screen logo
 
 		if t%25<18 then
-			print_centered("press z to play", 82, 6)
+			print_centered("press x to play", 82, 6)
 		end
 
 		print("copyright 2016", 36, 102, 5)
@@ -1050,7 +1050,7 @@ function _draw()
 		print_centered("move with the arrow keys", line_height*2, 6)
 
 		print_centered("planting", line_height*3, 9)
-		print_centered("plant wheat by pressing z", line_height*4, 6)
+		print_centered("plant wheat by pressing x", line_height*4, 6)
 
 		print_centered("harvesting", line_height*5, 9)
 		print_centered("walk into wheat bundles", line_height*6, 6)
@@ -1062,7 +1062,7 @@ function _draw()
 		print_centered("sleeping refills seeds", line_height*11, 6)
 
 		if t%25<18 then
-			print_centered("press z to start", line_height*12+flr(line_height/2), 7)
+			print_centered("press x to start", line_height*12+flr(line_height/2), 7)
 		end
 	elseif game_state==2 then
 		-- reset the palette
@@ -1071,7 +1071,7 @@ function _draw()
 
 		-- clip to lit rectangle
 		local xl,yt,xr,yb=lght:extents()
-		clip(xl,yt,xr-xl+1,yb-yt+1) 
+		clip(xl,yt,xr-xl+1,yb-yt+1)
 
 		-- store clipping coords globally to let us not draw certain objects
 		clipbox=make_box(
@@ -1079,24 +1079,24 @@ function _draw()
 		)
 
 		-- background from level map
-		map(0,0,0,0,16,16) 
+		map(0,0,0,0,16,16)
 
 		-- under-entity "blob" shadows
-		render_blob_shadows() 
+		render_blob_shadows()
 
 		-- entities themselves
 		render_entities()
 
 		-- "foreground" layer of level (parts that need to be on top of entities)
-		map(0,0,0,0,16,16,128) 
+		map(0,0,0,0,16,16,128)
 
 		-- apply lighting to all that
-		lght:apply() 
+		lght:apply()
 
 		-- "real" polygonal shadows
 		render_wall_shadows()
 
-		clip(0,0,128,128) 
+		clip(0,0,128,128)
 
 		renderHUD()
 		tbox_draw() -- draw the message boxes (if any)
@@ -1152,8 +1152,8 @@ end
 function _update()
 	t=t+1 -- increment the text box timer
 
-	if game_state<2 then 
-		if btnp(4) then
+	if game_state<2 then
+		if btnp(5) then
 			sfx(10)
 			game_state+=1
 		end
@@ -1454,13 +1454,13 @@ function player:s_default(t)
 	local moving=false
 
 	if not player_sleeping and not player_waking then
-		for i=0,3 do  
+		for i=0,3 do
 			if btn(i) then
 				self.facing=i+1
 				self.pos+=dirs[i+1]*player_speed
 				moving=true
 			end
-		end 
+		end
 
 		if moving then
 			if t%6==0 then
@@ -1511,7 +1511,7 @@ function player:s_default(t)
 
 		rtcl.pos=v(reticle_left,reticle_top)
 
-		if btnp(4) then
+		if btnp(5) then
 			if fget(mget(reticle_left/8,reticle_top/8))==64 then
 				if player_inventory_seeds>0 then
 					sfx(12)

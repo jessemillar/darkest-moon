@@ -27,13 +27,13 @@ function player:s_default(t)
 	local moving=false
 
 	if not player_sleeping and not player_waking then
-		for i=0,3 do  
+		for i=0,3 do
 			if btn(i) then
 				self.facing=i+1
 				self.pos+=dirs[i+1]*player_speed
 				moving=true
 			end
-		end 
+		end
 
 		if moving then
 			if t%6==0 then
@@ -84,7 +84,7 @@ function player:s_default(t)
 
 		rtcl.pos=v(reticle_left,reticle_top)
 
-		if btnp(4) then
+		if btnp(5) then
 			if fget(mget(reticle_left/8,reticle_top/8))==64 then
 				if player_inventory_seeds>0 then
 					sfx(12)

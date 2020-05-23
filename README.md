@@ -1,7 +1,5 @@
 [![Available on itch.io](http://jessemillar.github.io/available-on-itchio-badge/badge-color.png)](https://jessemillar.itch.io/darkest-moon)
 
-<iframe frameborder="0" src="https://itch.io/embed/326889" width="552" height="167"><a href="https://jessemillar.itch.io/darkest-moon">Darkest Moon by Jesse Millar</a></iframe>
-
 ## Overview
 
 [![Man Hours](https://img.shields.io/endpoint?url=https%3A%2F%2Fmh.jessemillar.com%2Fhours%3Frepo%3Dhttps%3A%2F%2Fgithub.com%2Fjessemillar%2Fdarkest-moon.git)](https://jessemillar.com/r/man-hours)
